@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
+#include <pthread.h>
 
 #ifndef PROTOCOL_H_
 #define PROTOCOL_H_
@@ -17,7 +18,7 @@
 typedef struct __attribute__((packed)) SteppingStoneAddress
 {
 	char hostAddress[255];
-	uint8_t port;
+	uint32_t port;
 }ssAddress;
 
 
