@@ -1,0 +1,17 @@
+EXECUTABLE = ss
+DEPENDENCY = ./obj/stepping_stone.o ./obj/runss.o
+CC = g++ -pthread
+CCFLAGS= -Wall -c -g
+OBJ_DIR=obj
+SRC_DIR=src
+EXE_DIR=build
+
+$(EXECUTABLE) : $(DEPENDENCY)
+	$(CC) $(DEPENDENCY) -o $(EXECUTABLE)
+	
+./obj/stepping_stone.o : ./$(SRC_DIR)/stepping_stone/stepping_stone.cc ./$(SRC_DIR)/common/stepping_stone.h
+	$(CC) $(CCFLAGS) ./$(SRC_DIR)/stepping_stone/stepping_stone.cc -o ./$(OBJ_DIR)/stepping_stone.o
+./obj/runss.o : ./$(SRC_DIR)/stepping_stone/runss.cc ./$(SRC_DIR)/common/stepping_stone.h
+	$(CC) $(CCFLAGS) ./$(SRC_DIR)/stepping_stone/runss.cc -o ./$(OBJ_DIR)/runss.o
+
+	
