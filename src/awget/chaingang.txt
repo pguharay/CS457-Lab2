@@ -1,0 +1,6 @@
+5
+tomato.cs.colostate.edu, 8000
+carrot.cs.colostate.edu, 8000
+pea.cs.colostate.edu, 8000
+mushroom.cs.colostate.edu, 8000
+eggplant.cs.colostate.edu, 8000
