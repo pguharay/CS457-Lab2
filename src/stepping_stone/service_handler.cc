@@ -9,9 +9,12 @@ void* startService(void* argument)
 {
 	StartArgument* startArg = (StartArgument*) argument;
 
+	srand(time(NULL));
+
 	int status = listen(startArg->listenerSocket, BACKLOG);
 
-	if (status == FAILURE) {
+	if (status == FAILURE)
+	{
 		perror("Unable to listen on bind address");
 		pthread_exit(NULL);
 	}
@@ -103,8 +106,39 @@ void receiveData(int socketid)
 		info("]");
 	}
 
-    close(socketid);
-    FD_CLR(socketid, &masterSet);
+	pthread_t handler;
+	pthread_attr_t handlerAttribute;
+	void* taskStatus = NULL;
+
+	TaskParameter taskParameter;
+	taskParameter.socketid = socketid;
+	taskParameter.awgetRequest = &request;
+
+	pthread_attr_init(&handlerAttribute);
+	pthread_attr_setdetachstate(&handlerAttribute,PTHREAD_CREATE_JOINABLE);
+	pthread_create(&handler, &handlerAttribute, &serveRequest, (void*)&taskParameter);
+	pthread_join(handler, &taskStatus);
+
+}
+
+void* serveRequest(void* argument)
+{
+	TaskParameter* taskParam = (TaskParameter*)argument;
+	FileRetrieverService* fileRetriever = new FileRetrieverService();
+
+	if(taskParam->awgetRequest->chainListSize > 0)
+	{
+		fileRetriever->handleRequest(taskParam->awgetRequest, taskParam->socketid);
+	}
+	else
+	{
+		fileRetriever->wget(taskParam->awgetRequest->url, taskParam->socketid);
+	}
+
+	close(taskParam->socketid);
+    FD_CLR(taskParam->socketid, &masterSet);
+
+    return NULL;
 }
 
 int receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length)

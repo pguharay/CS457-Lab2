@@ -11,6 +11,12 @@ typedef struct StartArgument
   struct sockaddr_in* address;
 }StartArg;
 
+typedef struct TaskParameter
+{
+	int socketid;
+	AwgetRequest* awgetRequest;
+}TaskParam;
+
 class SteppingStone
 {
 	private:
@@ -22,8 +28,6 @@ class SteppingStone
 		char hostname[255];
 
 		void initializeAddressInfo();
-		void handleRequest(awgetRequest* request);
-		void wget(char* url);
 		uint8_t getNextStone(int chainListLength);
 		char* getHostName();
 		int bindToAddress(addrinfo* iterator, char* port);
@@ -35,6 +39,13 @@ class SteppingStone
 		virtual void start();
 };
 
+class FileRetrieverService
+{
+	public:
+		void handleRequest(AwgetRequest* request, int socketid);
+		void wget(char* url, int socketid);
+};
+
 void* startService(void*);
 void selectConnection(int listenerSocket);
 void probeConnection(int maxFd, int listenerSocket);
@@ -42,5 +53,5 @@ void acceptConnection(int socketid);
 void receiveData(int socketid);
 int receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length);
 void initFileDescriptorSet(int socketid);
-
+void* serveRequest(void* argument);
 #endif

@@ -4,6 +4,9 @@
 SteppingStone :: SteppingStone(char* port)
 {
 	debug("Starting Stepping stone on port %s \n", port);
+
+	initializeAddressInfo();
+
 	int status = getaddrinfo(getHostName(), port, &addressInfo, &addrInfoResultList);
 
 	if(status != 0)

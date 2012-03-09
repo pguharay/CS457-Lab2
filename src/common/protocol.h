@@ -30,4 +30,4 @@ typedef struct __attribute__((packed)) AwgetRequest
 }awgetRequest;
 
 
-#endif /* STEPPING_STONE_H_ */
+#endif
