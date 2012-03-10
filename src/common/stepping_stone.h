@@ -5,6 +5,8 @@
 
 #define BACKLOG 10
 
+using namespace std;
+
 typedef struct StartArgument
 {
   int listenerSocket;
@@ -41,6 +43,13 @@ class SteppingStone
 
 class FileRetrieverService
 {
+	private:
+		string LOCAL_FILE_DIR;
+		string getFileLocation(string filename);
+		string createWgetCommand(string fileLocation, string urlAsString);
+		void readFileAndStream(string fileLocation, int socketid);
+    void removeTemporaryFile(string fileLocation);
+
 	public:
 		void handleRequest(AwgetRequest* request, int socketid);
 		void wget(char* url, int socketid);
@@ -53,5 +62,5 @@ void acceptConnection(int socketid);
 void receiveData(int socketid);
 int receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length);
 void initFileDescriptorSet(int socketid);
-void* serveRequest(void* argument);
+void* invokeFileRetriever(void* argument);
 #endif

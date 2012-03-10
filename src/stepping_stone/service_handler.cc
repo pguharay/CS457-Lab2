@@ -116,12 +116,12 @@ void receiveData(int socketid)
 
 	pthread_attr_init(&handlerAttribute);
 	pthread_attr_setdetachstate(&handlerAttribute,PTHREAD_CREATE_JOINABLE);
-	pthread_create(&handler, &handlerAttribute, &serveRequest, (void*)&taskParameter);
+	pthread_create(&handler, &handlerAttribute, &invokeFileRetriever, (void*)&taskParameter);
 	pthread_join(handler, &taskStatus);
 
 }
 
-void* serveRequest(void* argument)
+void* invokeFileRetriever(void* argument)
 {
 	TaskParameter* taskParam = (TaskParameter*)argument;
 	FileRetrieverService* fileRetriever = new FileRetrieverService();

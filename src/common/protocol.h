@@ -11,6 +11,7 @@
 #include <netdb.h>
 #include <string.h>
 #include <pthread.h>
+#include <string>
 
 #ifndef PROTOCOL_H_
 #define PROTOCOL_H_
