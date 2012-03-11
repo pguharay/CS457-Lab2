@@ -30,10 +30,7 @@ void FileRetrieverService :: prepareNewSSList(SteppingStoneAddress* oldChainList
 {
 	for(int index = itemIndexToRemove;index < arraySize -1; index++)
 	{
-		if(index != itemIndexToRemove)
-		{
-			*(oldChainList + index) = *(oldChainList + (index+1));
-		}
+		*(oldChainList + index) = *(oldChainList + (index+1));
 	}
 }
 
@@ -90,7 +87,7 @@ void FileRetrieverService::readFileAndStream(string fileLocation, int socketid)
 {
     ifstream fileStream;
 
-    fileStream.open(fileLocation.c_str(), ios::in | ios::binary);
+    fileStream.open(fileLocation.c_str(), ios::in);
 
     fileStream.seekg(0, ios::end);
 
