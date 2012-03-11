@@ -18,16 +18,16 @@ void ClientInterface :: retrieveFileFromNextSS(SteppingStoneAddress steppinStone
 
 void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest, int clientSocketId, int serverSocketId)
 {
-	int bytes = send(clientSocketId, (void*)awgetRequest, sizeof(awgetRequest), 0);
+	int bytes = send(clientSocketId, (void*)awgetRequest, sizeof(AwgetRequest), 0);
 
 	char response[MAX_FILE_SIZE];
-
-	if(bytes != sizeof(awgetRequest))
+	/*
+	if(bytes != sizeof(AwgetRequest))
 	{
 		perror("Failed to send request to server");
 		pthread_exit(NULL);
 	}
-
+	*/
 	bytes = recv(clientSocketId, (void*)response, MAX_FILE_SIZE, 0);
 
 	if(bytes < 0)
