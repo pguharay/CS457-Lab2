@@ -39,7 +39,9 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 
 	info("Relaying file ... \n");
 
-	send(serverSocketId, response, sizeof(response), 0);
+	send(serverSocketId, response, bytes, 0);
+
+	info("Successful. \n");
 }
 
 int ClientInterface :: connectSteppingStone(const char* hostaddress, char* port)
