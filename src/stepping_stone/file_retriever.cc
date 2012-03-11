@@ -18,7 +18,7 @@ void FileRetrieverService::handleRequest(AwgetRequest* awgetRequest, int socketi
 
 	debug("Next stepping stone = <%s>,<%u> \n", nextStone.hostAddress, ntohl(nextStone.port));
 
-	prepareNewSSList(awgetRequest->chainList, ntohs(awgetRequest->chainListSize), randomIndex);
+	prepareNewSSList(awgetRequest, ntohs(awgetRequest->chainListSize), randomIndex);
 
 	awgetRequest->chainListSize = htons(ntohs(awgetRequest->chainListSize) - 1);
 
@@ -26,11 +26,11 @@ void FileRetrieverService::handleRequest(AwgetRequest* awgetRequest, int socketi
 	clientInterface.retrieveFileFromNextSS(nextStone, awgetRequest, socketid);
 }
 
-void FileRetrieverService :: prepareNewSSList(SteppingStoneAddress* oldChainList, int arraySize, int itemIndexToRemove)
+void FileRetrieverService :: prepareNewSSList(AwgetRequest* awgetRequest, int arraySize, int itemIndexToRemove)
 {
 	for(int index = itemIndexToRemove;index < arraySize -1; index++)
 	{
-		*(oldChainList + index) = *(oldChainList + (index+1));
+		awgetRequest->chainList[index] = awgetRequest->chainList[index + 1];
 	}
 }
 

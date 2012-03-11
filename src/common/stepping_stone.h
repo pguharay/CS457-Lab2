@@ -56,7 +56,7 @@ class FileRetrieverService
 		FileRetrieverService();
 		void handleRequest(AwgetRequest* request, int socketid);
 		void wget(char* url, int socketid);
-		void prepareNewSSList(SteppingStoneAddress* oldChainList, int arraySize, int itemIndexToRemove);
+		void prepareNewSSList(AwgetRequest* awgetRequest, int arraySize, int itemIndexToRemove);
 };
 
 class ClientInterface
