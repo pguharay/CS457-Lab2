@@ -1,5 +1,5 @@
 EXECUTABLE = ss
-DEPENDENCY = ./obj/stepping_stone.o ./obj/service_handler.o ./obj/file_retriever.o ./obj/runss.o
+DEPENDENCY = ./obj/stepping_stone.o ./obj/service_handler.o ./obj/file_retriever.o ./obj/ss_client_interface.o ./obj/runss.o
 CC = g++ -pthread
 CCFLAGS= -Wall -c -g
 OBJ_DIR=obj
@@ -15,6 +15,8 @@ $(EXECUTABLE) : $(DEPENDENCY)
 	$(CC) $(CCFLAGS) ./$(SRC_DIR)/stepping_stone/service_handler.cc -o ./$(OBJ_DIR)/service_handler.o	
 ./obj/file_retriever.o : ./$(SRC_DIR)/stepping_stone/file_retriever.cc ./$(SRC_DIR)/common/stepping_stone.h
 	$(CC) $(CCFLAGS) ./$(SRC_DIR)/stepping_stone/file_retriever.cc -o ./$(OBJ_DIR)/file_retriever.o	
+./obj/ss_client_interface.o : ./$(SRC_DIR)/stepping_stone/ss_client_interface.cc ./$(SRC_DIR)/common/stepping_stone.h
+	$(CC) $(CCFLAGS) ./$(SRC_DIR)/stepping_stone/ss_client_interface.cc -o ./$(OBJ_DIR)/ss_client_interface.o		
 ./obj/runss.o : ./$(SRC_DIR)/stepping_stone/runss.cc ./$(SRC_DIR)/common/stepping_stone.h
 	$(CC) $(CCFLAGS) ./$(SRC_DIR)/stepping_stone/runss.cc -o ./$(OBJ_DIR)/runss.o
 

@@ -4,6 +4,9 @@
 fd_set masterSet;
 fd_set readSet;
 int maxFd = 0;
+pthread_t handler[MAX_THREAD];
+pthread_mutex_t threadMutex;
+int threadIndex = 0;
 
 void* startService(void* argument)
 {
@@ -19,7 +22,11 @@ void* startService(void* argument)
 		pthread_exit(NULL);
 	}
 
+	pthread_mutex_init(&threadMutex, NULL);
+
 	selectConnection(startArg->listenerSocket);
+
+	pthread_mutex_destroy(&threadMutex);
 
 	pthread_exit(NULL);
 
@@ -97,16 +104,16 @@ void receiveData(int socketid)
 	if(status == SUCCESS)
 	{
 		debug("Request = URL %s \n", request.url);
-		info("chain list =[ \n");
-		for(int i = 0;i<request.chainListSize; i++)
+		debug("ChainList size = %u \n", ntohs(request.chainListSize));
+		info("SS list =[ \n");
+		for(int i = 0;i< ntohs(request.chainListSize); i++)
 		{
 			SteppingStoneAddress ssAddress = request.chainList[i];
 			debug("<%s>,<%u> \n", ssAddress.hostAddress, ssAddress.port);
 		}
-		info("]");
+		info("] \n");
 	}
 
-	pthread_t handler;
 	pthread_attr_t handlerAttribute;
 	void* taskStatus = NULL;
 
@@ -114,25 +121,38 @@ void receiveData(int socketid)
 	taskParameter.socketid = socketid;
 	taskParameter.awgetRequest = &request;
 
+	pthread_mutex_lock(&threadMutex);
+	int index = 0;
+	if(threadIndex < MAX_THREAD)
+	{
+		index = threadIndex++;
+	}
+	else
+	{
+		index = threadIndex = 0;
+	}
+	pthread_mutex_unlock(&threadMutex);
+
 	pthread_attr_init(&handlerAttribute);
 	pthread_attr_setdetachstate(&handlerAttribute,PTHREAD_CREATE_JOINABLE);
-	pthread_create(&handler, &handlerAttribute, &invokeFileRetriever, (void*)&taskParameter);
-	pthread_join(handler, &taskStatus);
-
+	pthread_create(&handler[index], NULL, &invokeFileRetriever, (void*)&taskParameter);
+	pthread_join(handler[index], &taskStatus);
 }
 
 void* invokeFileRetriever(void* argument)
 {
 	TaskParameter* taskParam = (TaskParameter*)argument;
-	FileRetrieverService* fileRetriever = new FileRetrieverService();
+	FileRetrieverService fileRetriever;
 
 	if(taskParam->awgetRequest->chainListSize > 0)
 	{
-		fileRetriever->handleRequest(taskParam->awgetRequest, taskParam->socketid);
+		fileRetriever.handleRequest(taskParam->awgetRequest, taskParam->socketid);
 	}
 	else
 	{
-		fileRetriever->wget(taskParam->awgetRequest->url, taskParam->socketid);
+		debug("This is the last SS, wget %s \n", taskParam->awgetRequest->url);
+
+		fileRetriever.wget(taskParam->awgetRequest->url, taskParam->socketid);
 	}
 
 	close(taskParam->socketid);
@@ -143,11 +163,11 @@ void* invokeFileRetriever(void* argument)
 
 int receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length)
 {
-  int bytes = recv(socketid, (void*)request, length, 0);
+	info("Receiving request... \n");
 
-  debug("Received %d bytes \n", bytes);
+	recv(socketid, (void*)request, length, 0);
 
-  return SUCCESS;
+	return SUCCESS;
 }
 
 void initFileDescriptorSet(int socketid)

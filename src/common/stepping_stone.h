@@ -4,6 +4,7 @@
 #define STEPPING_STONE_H_
 
 #define BACKLOG 10
+#define MAX_THREAD 100
 
 using namespace std;
 
@@ -48,11 +49,23 @@ class FileRetrieverService
 		string getFileLocation(string filename);
 		string createWgetCommand(string fileLocation, string urlAsString);
 		void readFileAndStream(string fileLocation, int socketid);
-    void removeTemporaryFile(string fileLocation);
+		void removeTemporaryFile(string fileLocation);
+		void createTemporaryDirectory(string & fileLocation);
 
 	public:
+		FileRetrieverService();
 		void handleRequest(AwgetRequest* request, int socketid);
 		void wget(char* url, int socketid);
+		void prepareNewSSList(SteppingStoneAddress oldChainList[], SteppingStoneAddress newChainList[], int arraySize, int itemIndexToRemove);
+};
+
+class ClientInterface
+{
+	private:
+		int connectSteppingStone(const char* hostaddress, char* port);
+		void requestNextSSAndRelayResponse(AwgetRequest* awgetRequest, int clientSocketId, int serverSocketId);
+	public :
+		void retrieveFileFromNextSS(SteppingStoneAddress steppingStoneAddress, AwgetRequest* aegetRequest, int socketid);
 };
 
 void* startService(void*);
@@ -63,4 +76,5 @@ void receiveData(int socketid);
 int receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length);
 void initFileDescriptorSet(int socketid);
 void* invokeFileRetriever(void* argument);
+
 #endif
