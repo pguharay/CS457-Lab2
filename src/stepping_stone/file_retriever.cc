@@ -100,7 +100,18 @@ void FileRetrieverService::readFileAndStream(string fileLocation, int socketid)
     	info("File received ..\n");
     	info("Relay file... \n");
     	fileStream.read(buffer, length);
-    	send(socketid, &buffer, sizeof (buffer), 0);
+
+    	int bytesSend = 0;
+    	int bytesToBeSent = length;
+
+    	while(bytesToBeSent > 0)
+    	{
+    		int bytes = send(socketid, &buffer, sizeof (buffer), 0);
+
+    		bytesSend += bytes;
+    		bytesToBeSent -=bytes;
+    	}
+
     	info("Successful \n");
     }
 
