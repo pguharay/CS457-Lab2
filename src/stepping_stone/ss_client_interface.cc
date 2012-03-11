@@ -37,7 +37,7 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 		pthread_exit(NULL);
 	}
 
-	info("Relaying file ... \n");
+	debug("Relaying file ...%d bytes \n", bytes);
 
 	send(serverSocketId, response, bytes, 0);
 
