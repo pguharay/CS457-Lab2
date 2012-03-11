@@ -18,26 +18,21 @@ void FileRetrieverService::handleRequest(AwgetRequest* awgetRequest, int socketi
 
 	debug("Next stepping stone = <%s>,<%u>", nextStone.hostAddress, ntohl(nextStone.port));
 
-	awgetRequest->chainListSize = ntohs(awgetRequest->chainListSize) - 1;
-	SteppingStoneAddress newChainList[ntohs(awgetRequest->chainListSize)];
+	awgetRequest->chainListSize = htons(ntohs(awgetRequest->chainListSize) - 1);
 
-	prepareNewSSList(awgetRequest->chainList, newChainList, (ntohs(awgetRequest->chainListSize) +1), randomIndex);
-
-	memcpy(&newChainList, awgetRequest->chainList,ntohs(awgetRequest->chainListSize));
+	prepareNewSSList(awgetRequest->chainList, (ntohs(awgetRequest->chainListSize) +1), randomIndex);
 
 	ClientInterface clientInterface;
 	clientInterface.retrieveFileFromNextSS(nextStone, awgetRequest, socketid);
 }
 
-void FileRetrieverService :: prepareNewSSList(SteppingStoneAddress oldChainList[], SteppingStoneAddress newChainList[], int arraySize, int itemIndexToRemove)
+void FileRetrieverService :: prepareNewSSList(SteppingStoneAddress oldChainList[], int arraySize, int itemIndexToRemove)
 {
-	int index = 0;
-
-	for(int i = 0;i < arraySize; i++)
+	for(int index = itemIndexToRemove;index < arraySize -1; index++)
 	{
-		if(i != itemIndexToRemove)
+		if(index != itemIndexToRemove)
 		{
-			newChainList[index++] = oldChainList[i];
+			oldChainList[index] = oldChainList[index+1];
 		}
 	}
 }
