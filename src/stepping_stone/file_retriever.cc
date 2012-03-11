@@ -16,11 +16,11 @@ void FileRetrieverService::handleRequest(AwgetRequest* awgetRequest, int socketi
 
 	SteppingStoneAddress nextStone = awgetRequest->chainList[randomIndex];
 
-	debug("Next stepping stone = <%s>,<%u>", nextStone.hostAddress, ntohl(nextStone.port));
+	debug("Next stepping stone = <%s>,<%u> \n", nextStone.hostAddress, ntohl(nextStone.port));
+
+	prepareNewSSList(awgetRequest->chainList, ntohs(awgetRequest->chainListSize), randomIndex);
 
 	awgetRequest->chainListSize = htons(ntohs(awgetRequest->chainListSize) - 1);
-
-	prepareNewSSList(awgetRequest->chainList, (ntohs(awgetRequest->chainListSize) +1), randomIndex);
 
 	ClientInterface clientInterface;
 	clientInterface.retrieveFileFromNextSS(nextStone, awgetRequest, socketid);
