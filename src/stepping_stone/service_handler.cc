@@ -109,7 +109,7 @@ void receiveData(int socketid)
 		for(int i = 0;i< ntohs(request.chainListSize); i++)
 		{
 			SteppingStoneAddress ssAddress = request.chainList[i];
-			debug("<%s>,<%u> \n", ssAddress.hostAddress, ssAddress.port);
+			debug("<%s>,<%u> \n", ssAddress.hostAddress, ntohl(ssAddress.port));
 		}
 		info("] \n");
 	}
@@ -144,7 +144,7 @@ void* invokeFileRetriever(void* argument)
 	TaskParameter* taskParam = (TaskParameter*)argument;
 	FileRetrieverService fileRetriever;
 
-	if(taskParam->awgetRequest->chainListSize > 0)
+	if(ntohs(taskParam->awgetRequest->chainListSize) > 0)
 	{
 		fileRetriever.handleRequest(taskParam->awgetRequest, taskParam->socketid);
 	}

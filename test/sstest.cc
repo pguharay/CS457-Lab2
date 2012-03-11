@@ -16,16 +16,13 @@ AwgetRequest createRequest(int argc, char** argv)
 	SteppingStoneAddress firstStone, secondStone;
 
 	strcpy(firstStone.hostAddress, "tomato.cs.colostate.edu");
-	firstStone.port = 8080;
+	firstStone.port = htonl(8080);
 
 	strcpy(secondStone.hostAddress, "spinach.cs.colostate.edu");
-	secondStone.port = 8080;
+	secondStone.port = htonl(8080);
 
-	SteppingStoneAddress stoneAddress[2];
-	stoneAddress[0] = firstStone;
-	stoneAddress[1] = secondStone;
-
-	memcpy(&(awgetRequest.chainList), &stoneAddress, 2);
+	awgetRequest.chainList[0] = firstStone;
+	awgetRequest.chainList[1] = secondStone;
 
 	return awgetRequest;
 }

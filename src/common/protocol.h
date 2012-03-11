@@ -21,8 +21,8 @@
 
 typedef struct __attribute__((packed)) SteppingStoneAddress
 {
-	char hostAddress[20];
 	uint32_t port;
+	char hostAddress[50];
 }ssAddress;
 
 

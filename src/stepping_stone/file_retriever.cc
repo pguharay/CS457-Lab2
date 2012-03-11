@@ -10,17 +10,20 @@ FileRetrieverService::FileRetrieverService()
 
 void FileRetrieverService::handleRequest(AwgetRequest* awgetRequest, int socketid)
 {
-	int randomIndex = rand() % awgetRequest->chainListSize;
+	int randomIndex = (rand() % ntohs(awgetRequest->chainListSize));
+
+	debug("Random index %d \n", randomIndex);
+
 	SteppingStoneAddress nextStone = awgetRequest->chainList[randomIndex];
 
-	debug("Next stepping stone = <%s>,<%u>", nextStone.hostAddress, nextStone.port);
+	debug("Next stepping stone = <%s>,<%u>", nextStone.hostAddress, ntohl(nextStone.port));
 
-	awgetRequest->chainListSize = awgetRequest->chainListSize - 1;
-	SteppingStoneAddress newChainList[awgetRequest->chainListSize];
+	awgetRequest->chainListSize = ntohs(awgetRequest->chainListSize) - 1;
+	SteppingStoneAddress newChainList[ntohs(awgetRequest->chainListSize)];
 
-	prepareNewSSList(awgetRequest->chainList, newChainList, (awgetRequest->chainListSize +1), randomIndex);
+	prepareNewSSList(awgetRequest->chainList, newChainList, (ntohs(awgetRequest->chainListSize) +1), randomIndex);
 
-	memcpy(&newChainList, awgetRequest->chainList,awgetRequest->chainListSize);
+	memcpy(&newChainList, awgetRequest->chainList,ntohs(awgetRequest->chainListSize));
 
 	ClientInterface clientInterface;
 	clientInterface.retrieveFileFromNextSS(nextStone, awgetRequest, socketid);
