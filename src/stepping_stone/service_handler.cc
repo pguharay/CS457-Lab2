@@ -146,6 +146,8 @@ void* invokeFileRetriever(void* argument)
 
 	if(ntohs(taskParam->awgetRequest->chainListSize) > 0)
 	{
+		info("waiting ... \n");
+
 		fileRetriever.handleRequest(taskParam->awgetRequest, taskParam->socketid);
 	}
 	else
@@ -154,6 +156,8 @@ void* invokeFileRetriever(void* argument)
 
 		fileRetriever.wget(taskParam->awgetRequest->url, taskParam->socketid);
 	}
+
+	info("Good bye . \n");
 
 	close(taskParam->socketid);
     FD_CLR(taskParam->socketid, &masterSet);

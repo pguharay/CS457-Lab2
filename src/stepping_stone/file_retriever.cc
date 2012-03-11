@@ -12,11 +12,10 @@ void FileRetrieverService::handleRequest(AwgetRequest* awgetRequest, int socketi
 {
 	int randomIndex = (rand() % ntohs(awgetRequest->chainListSize));
 
-	debug("Random index %d \n", randomIndex);
-
 	SteppingStoneAddress nextStone = awgetRequest->chainList[randomIndex];
 
-	debug("Next stepping stone = <%s>,<%u> \n", nextStone.hostAddress, ntohl(nextStone.port));
+	debug("Next SS is = <%s,%u> \n", nextStone.hostAddress, ntohl(nextStone.port));
+	debug("Fething %s \n", awgetRequest->url);
 
 	prepareNewSSList(awgetRequest, ntohs(awgetRequest->chainListSize), randomIndex);
 
@@ -98,10 +97,11 @@ void FileRetrieverService::readFileAndStream(string fileLocation, int socketid)
 
     if(fileStream.good() && fileStream.is_open())
     {
-    	info("Realy file... \n");
+    	info("File received ..\n");
+    	info("Relay file... \n");
     	fileStream.read(buffer, length);
     	send(socketid, &buffer, sizeof (buffer), 0);
-    	info("Success \n");
+    	info("Successful \n");
     }
 
     fileStream.close();
