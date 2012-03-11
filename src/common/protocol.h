@@ -34,17 +34,3 @@ typedef struct __attribute__((packed)) AwgetRequest
 }awgetRequest;
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-=======
-#endif /* STEPPING_STONE_H_ */
->>>>>>> branch 'master' of ssh://git@github.com:22/pguharay/CS457-Lab2.git
