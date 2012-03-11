@@ -26,13 +26,13 @@ void FileRetrieverService::handleRequest(AwgetRequest* awgetRequest, int socketi
 	clientInterface.retrieveFileFromNextSS(nextStone, awgetRequest, socketid);
 }
 
-void FileRetrieverService :: prepareNewSSList(SteppingStoneAddress oldChainList[], int arraySize, int itemIndexToRemove)
+void FileRetrieverService :: prepareNewSSList(SteppingStoneAddress* oldChainList, int arraySize, int itemIndexToRemove)
 {
 	for(int index = itemIndexToRemove;index < arraySize -1; index++)
 	{
 		if(index != itemIndexToRemove)
 		{
-			oldChainList[index] = oldChainList[index+1];
+			*(oldChainList + index) = *(oldChainList + (index+1));
 		}
 	}
 }
