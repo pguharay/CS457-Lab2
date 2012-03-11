@@ -46,7 +46,7 @@ void FileRetrieverService::wget(char* url, int socketid)
 
 	readFileAndStream(fileLocation, socketid);
 
-	removeTemporaryFile(fileLocation);
+	//removeTemporaryFile(fileLocation);
 }
 
 void FileRetrieverService::createTemporaryDirectory(string & fileLocation)
@@ -86,7 +86,7 @@ void FileRetrieverService::readFileAndStream(string fileLocation, int socketid)
 {
     ifstream fileStream;
 
-    fileStream.open(fileLocation.c_str(), ios::in);
+    fileStream.open(fileLocation.c_str(), ios::in | ios::binary);
 
     fileStream.seekg(0, ios::end);
 
@@ -104,7 +104,7 @@ void FileRetrieverService::readFileAndStream(string fileLocation, int socketid)
     	int bytesSend = 0;
     	int bytesToBeSent = length;
 
-    	while(bytesToBeSent > 0)
+    	while(bytesSend < length)
     	{
     		int bytes = send(socketid, &buffer, sizeof (buffer), 0);
 
