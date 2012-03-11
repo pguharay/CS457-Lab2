@@ -112,6 +112,8 @@ void FileRetrieverService::readFileAndStream(string fileLocation, int socketid)
 
     		bytesSend += bytes;
     		bytesToBeSent -=bytes;
+
+    		debug("bytes send %d \n", bytes);
     	}
 
     	info("Successful \n");
