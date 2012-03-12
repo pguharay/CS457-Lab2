@@ -22,33 +22,33 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
-
-
-
-class client {
-public:
-	client(clientArgument* clientArg);
-	virtual ~client();
-	char* awget(); //makes the call to get document and returns the path to the local file.
-
-private:
-    sockaddr* serverAddress;         /* SERVER HOST ADDRESS */
-	int socketId;
-	bool validateArgument(clientArgument* clientArg);
-	AwgetRequest    createRequest(char* documentUrl, SteppingStoneAddress steppingStones[]); //creates awget request from stepping stones and doc url.
-	SteppingStoneAddress* getSteppingStonesFromFile(char* fi); //creates an array of stepping stones from chaingang file.
-	SteppingStoneAddress getRandomSteppingStoneAddressFromList(SteppingStoneAddress steppingStones[], uint8_t size); //gets a random stepping stone address from list.
-	/*makes the blocking TCP call to a random stepping stone and waits for response.
-	 *returns  the raw byte array of the document.*/
-	char* sendRequest(AwgetRequest* request);
-};
-
-
 typedef struct clientArgument
 {
   char*        documentUrl;
   char*        hostFile;
 };
+
+class AwgetClient {
+	public:
+		AwgetClient(clientArgument clientArg);
+		virtual ~AwgetClient();
+		const char* awget(); //makes the call to get document and returns the path to the local file.
+
+	private:
+		sockaddr* serverAddress;         /* SERVER HOST ADDRESS */
+		int socketId;
+		bool validateArgument(clientArgument clientArg);
+		void initializeConnection(SteppingStoneAddress ss);
+		AwgetRequest    createRequest(char* documentUrl, SteppingStoneAddress steppingStones[]); //creates awget request from stepping stones and doc url.
+		SteppingStoneAddress* getSteppingStonesFromFile(char* fi); //creates an array of stepping stones from chaingang file.
+		SteppingStoneAddress getRandomSteppingStoneAddressFromList(SteppingStoneAddress steppingStones[], uint8_t size); //gets a random stepping stone address from list.
+		/*makes the blocking TCP call to a random stepping stone and waits for response.
+		 *returns  the raw byte array of the document.*/
+		const char* sendRequest(SteppingStoneAddress* ss, AwgetRequest* request);
+};
+
+
+
 
 
 #endif /* CLIENT_H_ */

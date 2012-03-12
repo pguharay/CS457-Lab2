@@ -12,7 +12,7 @@
 #include <string.h>
 #include <netdb.h>
 
-#include "../common/awget.h"
+#include "../common/protocol.h"
 
 
 int main(int argc, char** argv)
@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     int index;
 
 	while ((option = getopt (argc, argv, "c:")) != -1)
-		switch (c)
+		switch (option)
         {
            case 'c':
         	   chainFileName = optarg;
