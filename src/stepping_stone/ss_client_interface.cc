@@ -46,8 +46,10 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 			send(serverSocketId, response, bytes, 0);
 		}
 
-	}while(response[bytes] != '\0');
+	}while(bytes > 0);
 
+	close(clientSocketId);
+	close(serverSocketId);
 
 	info("Successful. \n");
 }
