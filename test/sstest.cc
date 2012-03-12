@@ -66,7 +66,7 @@ int connectSteppingStone(char* hostaddress, char* port)
 	return socketid;
 }
 
-void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int socketId)
+void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int socketId, string filename)
 {
 	int bytes = send(socketId, (void*)&awgetRequest, sizeof(awgetRequest), 0);
 
@@ -79,7 +79,13 @@ void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int socketId)
 	}
 
 	ofstream fileStream;
-	fileStream.open("/tmp/sstest/local.txt", ios::out);
+
+	std::string fileLocation = "/tmp/";
+	fileLocation.append(filename);
+
+	fileStream.open(fileLocation.c_str(), ios::out | ios::binary);
+
+	info("writing the content to local disk. \n");
 
 	do
 	{
@@ -93,7 +99,6 @@ void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int socketId)
 
 		if(fileStream.is_open() && bytes > 0)
 		{
-			info("writing the content to local disk. \n");
 			fileStream.write(response, bytes);
 		}
 	}while(bytes > 0);
@@ -106,7 +111,8 @@ void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int socketId)
 int main(int argc, char** argv)
 {
 	int socket = connectSteppingStone(*(argv + 4), *(argv + 6));
-	requestNextSSAndRelayResponse(createRequest(argc, argv), socket);
+
+	requestNextSSAndRelayResponse(createRequest(argc, argv), socket, *(argv + 8));
 
 	return 1;
 }
