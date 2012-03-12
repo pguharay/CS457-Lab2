@@ -19,6 +19,7 @@ void ClientInterface :: retrieveFileFromNextSS(SteppingStoneAddress steppinStone
 void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest, int clientSocketId, int serverSocketId)
 {
 	int bytes = send(clientSocketId, (void*)awgetRequest, sizeof(AwgetRequest), 0);
+	info("Waiting for the file ... \n");
 
 	char response[MAX_FILE_SIZE];
 
@@ -28,7 +29,7 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 		pthread_exit(NULL);
 	}
 
-	info("Waiting for the file ... \n");
+	info("Relaying file...  \n");
 
 	do
 	{
@@ -42,7 +43,6 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 
 		if(bytes > 0)
 		{
-			debug("Relaying file ...%d bytes \n", bytes);
 			send(serverSocketId, response, bytes, 0);
 		}
 

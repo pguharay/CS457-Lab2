@@ -93,14 +93,13 @@ void FileRetrieverService::readFileAndStream(string fileLocation, int socketid)
     int length = fileStream.tellg();
     char buffer[length];
 
-    debug("File size = %d bytes\n", length);
-
     fileStream.seekg(0, ios::beg);
 
     if(fileStream.good() && fileStream.is_open())
     {
     	info("File received ..\n");
     	info("Relay file... \n");
+
     	fileStream.read(buffer, length);
 
     	int bytesSend = 0;
@@ -112,8 +111,6 @@ void FileRetrieverService::readFileAndStream(string fileLocation, int socketid)
 
     		bytesSend += bytes;
     		bytesToBeSent -=bytes;
-
-    		debug("bytes send %d \n", bytes);
     	}
 
     	info("Successful \n");
