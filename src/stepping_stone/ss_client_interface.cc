@@ -30,9 +30,7 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 
 	info("Waiting for the file ... \n");
 
-	bytes = 0;
-
-	while(response[bytes] != '\0')
+	do
 	{
 		bytes = recv(clientSocketId, (void*)response, MAX_FILE_SIZE, 0);
 
@@ -40,13 +38,15 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 		{
 			perror("Unable to get response from server");
 			pthread_exit(NULL);
-
 		}
 
-		debug("Relaying file ...%d bytes \n", bytes);
-		send(serverSocketId, response, bytes, 0);
+		if(bytes > 0)
+		{
+			debug("Relaying file ...%d bytes \n", bytes);
+			send(serverSocketId, response, bytes, 0);
+		}
 
-	}
+	}while(response[bytes] != '\0' || bytes > 0);
 
 
 	info("Successful. \n");

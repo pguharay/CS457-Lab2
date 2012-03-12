@@ -78,11 +78,10 @@ void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int socketId)
 		exit(0);
 	}
 
-	bytes = 0;
 	ofstream fileStream;
 	fileStream.open("/tmp/sstest/local.txt", ios::out);
 
-	while(response[bytes] != '\0')
+	do
 	{
 		bytes = recv(socketId, (void*)response, MAX_FILE_SIZE, 0);
 
@@ -94,13 +93,12 @@ void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int socketId)
 
 		debug("Received %d bytes \n", bytes);
 
-
 		if(fileStream.is_open())
 		{
 			info("writing the content to local disk. \n");
 			fileStream.write(response, bytes);
 		}
-	}
+	}while(response[bytes] != '\0' || bytes > 0);
 
 	fileStream.close();
 }
