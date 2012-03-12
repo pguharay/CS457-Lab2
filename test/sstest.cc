@@ -98,7 +98,7 @@ void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int socketId)
 			info("writing the content to local disk. \n");
 			fileStream.write(response, bytes);
 		}
-	}while(response[bytes] != '\0' || bytes > 0);
+	}while(response[bytes] != '\0');
 
 	fileStream.close();
 }
