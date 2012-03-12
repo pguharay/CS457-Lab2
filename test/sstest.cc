@@ -11,7 +11,7 @@ AwgetRequest createRequest(int argc, char** argv)
 
 	memcpy(awgetRequest.url,*(argv + 2), strlen(*(argv + 2)));
 
-	awgetRequest.chainListSize = htons(0);
+	awgetRequest.chainListSize = htons(2);
 
 	SteppingStoneAddress firstStone, secondStone;
 
