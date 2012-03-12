@@ -11,7 +11,7 @@ AwgetRequest createRequest(int argc, char** argv)
 
 	memcpy(awgetRequest.url,*(argv + 2), strlen(*(argv + 2)));
 
-	awgetRequest.chainListSize = htons(2);
+	awgetRequest.chainListSize = htons(0);
 
 	SteppingStoneAddress firstStone, secondStone;
 
@@ -78,22 +78,28 @@ void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int socketId)
 		exit(0);
 	}
 
-	bytes = recv(socketId, (void*)response, MAX_FILE_SIZE, 0);
-
-	if(bytes < 0)
-	{
-		perror("Unable to get response from server");
-		exit(0);
-	}
-
+	bytes = 0;
 	ofstream fileStream;
-
 	fileStream.open("/tmp/sstest/local.txt", ios::out);
 
-	if(fileStream.is_open())
+	while(response[bytes] != '\0')
 	{
-		info("writing the content to local disk");
-		fileStream.write(response, bytes);
+		bytes = recv(socketId, (void*)response, MAX_FILE_SIZE, 0);
+
+		if(bytes < 0)
+		{
+			perror("Unable to get response from server");
+			exit(0);
+		}
+
+		debug("Received %d bytes \n", bytes);
+
+
+		if(fileStream.is_open())
+		{
+			info("writing the content to local disk. \n");
+			fileStream.write(response, bytes);
+		}
 	}
 
 	fileStream.close();
