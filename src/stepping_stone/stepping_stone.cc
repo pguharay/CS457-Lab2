@@ -1,8 +1,13 @@
 #include "../common/stepping_stone.h"
 #include "../common/util.h"
 
-SteppingStone :: SteppingStone(char* port)
+SteppingStone :: SteppingStone(const char* port)
 {
+	if(port == NULL)
+	{
+		port = std::string(DEFAULT_PORT).c_str();
+	}
+
 	debug("Starting Stepping stone on port %s \n", port);
 
 	initializeAddressInfo();
@@ -58,7 +63,7 @@ void SteppingStone :: setupStartParameter(addrinfo* addrinfo, int listenerSocket
 	startArgument.address = (sockaddr_in*)addrinfo->ai_addr;
 }
 
-int SteppingStone :: bindToAddress(addrinfo* iterator, char* port)
+int SteppingStone :: bindToAddress(addrinfo* iterator, const char* port)
 {
   int listenerSocket;
   int reuse = 1;
