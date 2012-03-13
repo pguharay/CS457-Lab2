@@ -15,7 +15,7 @@ void FileRetrieverService::handleRequest(AwgetRequest* awgetRequest, int socketi
 	SteppingStoneAddress nextStone = awgetRequest->chainList[randomIndex];
 
 	debug("Next SS is = <%s,%u> \n", nextStone.hostAddress, ntohl(nextStone.port));
-	debug("Fething %s \n", awgetRequest->url);
+	debug("Fetching %s \n", awgetRequest->url);
 
 	prepareNewSSList(awgetRequest, ntohs(awgetRequest->chainListSize), randomIndex);
 
