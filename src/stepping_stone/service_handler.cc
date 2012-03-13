@@ -98,7 +98,10 @@ void acceptConnectionAsync(int listenerSocket)
 
     pthread_mutex_unlock(&threadMutex);
 
+    pthread_attr_init(&handlerAttribute);
+    pthread_attr_setdetachstate(&handlerAttribute, PTHREAD_CREATE_JOINABLE);
     pthread_create(&handler[index], NULL, &acceptConnection, (void*) &connectionRequest);
+    pthread_join(handler[index], &taskStatus);
 }
 
 void* acceptConnection(void* argument)
@@ -170,7 +173,10 @@ void handleRequestAsync(int socketid, AwgetRequest request)
 
     pthread_mutex_unlock(&threadMutex);
 
-    pthread_create(&handler[index], NULL, &invokeFileRetriever, (void*)&taskParameter);
+    pthread_attr_init(&handlerAttribute);
+    pthread_attr_setdetachstate(&handlerAttribute, PTHREAD_CREATE_JOINABLE);
+    pthread_create(&handler[index], &handlerAttribute, &invokeFileRetriever, (void*)&taskParameter);
+    pthread_join(handler[index], &taskStatus);
 }
 
 void* invokeFileRetriever(void* argument)
