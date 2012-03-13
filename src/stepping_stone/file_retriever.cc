@@ -42,7 +42,12 @@ void FileRetrieverService::wget(char* url, int socketid)
 
 	string systemCommand = createWgetCommand(fileLocation, urlAsString);
 
-	system(systemCommand.c_str());
+	int status = system(systemCommand.c_str());
+
+	if(status != 0)
+	{
+		throw "Unable to retrieve file using wget \n.";
+	}
 
 	readFileAndStream(fileLocation, socketid);
 
@@ -108,6 +113,11 @@ void FileRetrieverService::readFileAndStream(string fileLocation, int socketid)
     	while(bytesSend < length)
     	{
     		int bytes = send(socketid, &buffer, sizeof (buffer), 0);
+
+    		if(bytes < 0)
+    		{
+    			throw "Unable to relay file";
+    		}
 
     		bytesSend += bytes;
     		bytesToBeSent -=bytes;

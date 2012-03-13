@@ -20,6 +20,11 @@ typedef struct TaskParameter
 	AwgetRequest* awgetRequest;
 }TaskParam;
 
+typedef struct ConnectionRequest
+{
+	int listenerSocket;
+}connectionRequest;
+
 class SteppingStone
 {
 	private:
@@ -68,13 +73,15 @@ class ClientInterface
 		void retrieveFileFromNextSS(SteppingStoneAddress steppingStoneAddress, AwgetRequest* aegetRequest, int socketid);
 };
 
-void* startService(void*);
-void selectConnection(int listenerSocket);
-void probeConnection(int maxFd, int listenerSocket);
-void acceptConnection(int socketid);
-void receiveData(int socketid);
-int receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length);
-void initFileDescriptorSet(int socketid);
-void* invokeFileRetriever(void* argument);
+void* 	startService(void*);
+void 	selectConnection(int listenerSocket);
+void 	probeConnection(int maxFd, int listenerSocket);
+void 	acceptConnectionAsync(int listenerSocket);
+void* 	acceptConnection(void* argument);
+void 	receiveData(int socketid);
+void 	handleRequestAsync(int socketid, AwgetRequest request);
+int 	receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length);
+void 	initFileDescriptorSet(int socketid);
+void* 	invokeFileRetriever(void* argument);
 
 #endif
