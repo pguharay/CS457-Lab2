@@ -1,3 +1,8 @@
 *.cproject
 *.project
 *.mynotes
+*.o
+/ss
+/awget
+/sstest
+/awgettest

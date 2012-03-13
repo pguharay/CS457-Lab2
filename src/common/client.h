@@ -33,10 +33,11 @@ class AwgetClient {
 		AwgetClient(clientArgument clientArg);
 		virtual ~AwgetClient();
 		const char* awget(); //makes the call to get document and returns the path to the local file.
+		const char* sendRequest(SteppingStoneAddress ss, AwgetRequest request);
 
 	private:
-		sockaddr* serverAddress;         /* SERVER HOST ADDRESS */
-		int socketId;
+		//sockaddr* serverAddress;         /* SERVER HOST ADDRESS */
+		//int socketId;
 		bool validateArgument(clientArgument clientArg);
 		void initializeConnection(SteppingStoneAddress ss);
 		AwgetRequest    createRequest(char* documentUrl, SteppingStoneAddress steppingStones[]); //creates awget request from stepping stones and doc url.
@@ -44,7 +45,7 @@ class AwgetClient {
 		SteppingStoneAddress getRandomSteppingStoneAddressFromList(SteppingStoneAddress steppingStones[], uint8_t size); //gets a random stepping stone address from list.
 		/*makes the blocking TCP call to a random stepping stone and waits for response.
 		 *returns  the raw byte array of the document.*/
-		const char* sendRequest(SteppingStoneAddress* ss, AwgetRequest* request);
+		//const char* sendRequest(SteppingStoneAddress* ss, AwgetRequest* request);
 };
 
 

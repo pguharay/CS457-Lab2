@@ -12,7 +12,8 @@ struct addrinfo  serverAddressQuery;
 struct addrinfo* serverAddressResultList;
 fd_set read_fds;
 struct timeval tv;
-
+int socketId;
+sockaddr* serverAddress;
 
 AwgetClient::AwgetClient(clientArgument clientArg) {
 	args = clientArg;
@@ -24,19 +25,21 @@ const char* AwgetClient::awget(){
 	SteppingStoneAddress* ssAll = getSteppingStonesFromFile(args.hostFile);
 	AwgetRequest request = createRequest(args.documentUrl, ssAll);
 	SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, request.chainListSize);
-	initializeConnection(ss);
-	return sendRequest(&ss, &request);
+	//initializeConnection(ss);
+	return sendRequest(ss, request);
 }
 
 
-const char* AwgetClient::sendRequest(SteppingStoneAddress* ss, AwgetRequest* request){
+const char* AwgetClient::sendRequest(SteppingStoneAddress ss, AwgetRequest request){
+	error("got here!\n");
+	initializeConnection(ss);
 	char inputBuffer[1024];
 	bool dataComplete = false;
 	std::string fullOutput;
 
 	int bytes;
 	socklen_t addrlen = sizeof(struct sockaddr);
-	bytes = send(socketId, request, sizeof(struct AwgetRequest), 0);
+	bytes = send(socketId, (void *)&request, sizeof(struct AwgetRequest), 0);
 	if(bytes < 0){
 		perror("Unable to send data");
 		exit(1);
@@ -75,29 +78,36 @@ const char* AwgetClient::sendRequest(SteppingStoneAddress* ss, AwgetRequest* req
 void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 	//open a tcp connection and send AwgetRequest to steppingstone
 	//resolve the hostAddress from the steppingstone structure...
-	memset(&serverAddressQuery, 0x0000, sizeof(serverAddressQuery));
-	serverAddressQuery.ai_family = AF_INET;
-	serverAddressQuery.ai_socktype = SOCK_STREAM;
-	char port[10];
-	sprintf(port, "%d", ntohl(ss.port));
-	int status = getaddrinfo(ss.hostAddress,port, &serverAddressQuery, &serverAddressResultList);
+	int status;
 
 	if(status != SUCCESS){
 		error("Unable to get server host information \n");
 		exit(1);
 	}
 
-	serverAddress = serverAddressResultList->ai_addr;
+	struct sockaddr_in sin;
+	struct hostent *hp;
 
-	socketId = socket(serverAddressResultList->ai_family, serverAddressResultList->ai_socktype, 0);
+	hp = gethostbyname(ss.hostAddress);
+	if(!hp){
+		debug("Unknown host: %s\n.", ss.hostAddress);
+		exit(1);
+	}
+
+	bzero((char *)&sin, sizeof(sin));
+	sin.sin_family = AF_INET;
+	bcopy(hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
+
+	sin.sin_port = htons(ss.port);
+	socketId = socket(PF_INET, SOCK_STREAM, 0);
 
 	 if(socketId < 0){
-		perror("Unable to create socket \n");
+		error("Unable to create socket \n");
 		exit(1);
 	 }
 
 	//wait for response, will need a timeout here...
-	 status = connect(socketId, serverAddress, serverAddressResultList->ai_addrlen);
+	 status = connect(socketId, (struct sockaddr *)&sin, sizeof(sin));
 	 if(status == FAILURE){
 		perror("unable to connect to server");
 		exit(1);
