@@ -1,5 +1,5 @@
 EXECUTABLE = awget
-DEPENDENCY = ./obj/client.o ./obj/awget.o 
+DEPENDENCY = ./obj/client.o ./obj/client_runner.o #./obj/awget.o
 CC = g++ 
 CCFLAGS= -Wall -c -g
 OBJ_DIR=obj
@@ -11,5 +11,10 @@ $(EXECUTABLE) : $(DEPENDENCY)
 	
 ./obj/client.o : ./$(SRC_DIR)/client/client.cc ./$(SRC_DIR)/common/client.h
 	$(CC) $(CCFLAGS) ./$(SRC_DIR)/client/client.cc -o ./$(OBJ_DIR)/client.o
-./obj/awget.o : ./$(SRC_DIR)/awget/awget.cc ./$(SRC_DIR)/common/protocol.h
-	$(CC) $(CCFLAGS) ./$(SRC_DIR)/awget/awget.cc -o ./$(OBJ_DIR)/awget.o	
+#	
+#./obj/awget.o : ./$(SRC_DIR)/awget/awget.cc ./$(SRC_DIR)/common/protocol.h
+#	$(CC) $(CCFLAGS) ./$(SRC_DIR)/awget/awget.cc -o ./$(OBJ_DIR)/awget.o
+	
+./obj/client_runner.o : ./$(SRC_DIR)/client/client_runner.cc ./$(SRC_DIR)/common/client.h
+	$(CC) $(CCFLAGS) ./$(SRC_DIR)/client/client_runner.cc -o ./$(OBJ_DIR)/client_runner.o
+	

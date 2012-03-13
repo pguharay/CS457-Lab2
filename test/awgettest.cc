@@ -5,13 +5,16 @@
 
 int main(int argc, char** argv)
 {
+	AwgetClient* client;
 	//create a client argument..
 	clientArgument carg;
 	carg.documentUrl = "http://someurl/sometxt.txt";
-	carg.hostFile = "chaingang.txt";
+	carg.hostFile = "src/awget/chaingang.txt";
 
 	//create a new client
-	Client client = new Client(carg);
+	client = new AwgetClient(carg);
+	client->awget();
 
-	client.awget();
 }
+
+
