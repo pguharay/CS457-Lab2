@@ -54,10 +54,12 @@ void selectConnection(int listenerSocket)
     if(status == FAILURE)
     {
       perror("Unable to select");
-      pthread_exit(NULL);
+      //pthread_exit(NULL);
     }
-
-    probeConnection(maxFd, listenerSocket);
+    else
+    {
+    	probeConnection(maxFd, listenerSocket);
+    }
   }
 }
 
