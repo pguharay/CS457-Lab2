@@ -5,6 +5,7 @@
 
 #define BACKLOG 10
 #define MAX_THREAD 100
+#define DEFAULT_PORT "9090"
 
 using namespace std;
 
@@ -38,11 +39,11 @@ class SteppingStone
 		void initializeAddressInfo();
 		uint8_t getNextStone(int chainListLength);
 		char* getHostName();
-		int bindToAddress(addrinfo* iterator, char* port);
+		int bindToAddress(addrinfo* iterator, const char* port);
 		void setupStartParameter(addrinfo* addrinfo, int listenerSocket);
 
 	public:
-		SteppingStone(char* port);
+		SteppingStone(const char* port);
 		virtual ~SteppingStone();
 		virtual void start();
 };

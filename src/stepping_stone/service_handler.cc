@@ -45,7 +45,11 @@ void selectConnection(int listenerSocket)
   {
     readSet = masterSet;
 
+    pthread_mutex_lock(&threadMutex);
+
     int status= select(maxFd + 1, &readSet, NULL, NULL, &timeout);
+
+    pthread_mutex_unlock(&threadMutex);
 
     if(status == FAILURE)
     {
@@ -78,11 +82,10 @@ void probeConnection(int maxFd, int listenerSocket)
 
 void acceptConnectionAsync(int listenerSocket)
 {
-    ConnectionRequest connectionRequest;
-    connectionRequest.listenerSocket = listenerSocket;
+    ConnectionRequest* connectionRequest = (ConnectionRequest*)malloc(sizeof(ConnectionRequest));
+    connectionRequest->listenerSocket = listenerSocket;
 
     pthread_attr_t handlerAttribute;
-    void* taskStatus = NULL;
 
     pthread_mutex_lock(&threadMutex);
 
@@ -100,8 +103,7 @@ void acceptConnectionAsync(int listenerSocket)
 
     pthread_attr_init(&handlerAttribute);
     pthread_attr_setdetachstate(&handlerAttribute, PTHREAD_CREATE_JOINABLE);
-    pthread_create(&handler[index], NULL, &acceptConnection, (void*) &connectionRequest);
-    pthread_join(handler[index], &taskStatus);
+    pthread_create(&handler[index], NULL, &acceptConnection, (void*) connectionRequest);
 }
 
 void* acceptConnection(void* argument)
@@ -153,11 +155,10 @@ void receiveData(int socketid)
 void handleRequestAsync(int socketid, AwgetRequest request)
 {
     pthread_attr_t handlerAttribute;
-    void* taskStatus = NULL;
 
-    TaskParameter taskParameter;
-    taskParameter.socketid = socketid;
-    taskParameter.awgetRequest = &request;
+    TaskParameter* taskParameter = (TaskParameter*)malloc(sizeof(TaskParameter));
+    taskParameter->socketid = socketid;
+    taskParameter->awgetRequest = &request;
 
     pthread_mutex_lock(&threadMutex);
 
@@ -175,8 +176,7 @@ void handleRequestAsync(int socketid, AwgetRequest request)
 
     pthread_attr_init(&handlerAttribute);
     pthread_attr_setdetachstate(&handlerAttribute, PTHREAD_CREATE_JOINABLE);
-    pthread_create(&handler[index], &handlerAttribute, &invokeFileRetriever, (void*)&taskParameter);
-    pthread_join(handler[index], &taskStatus);
+    pthread_create(&handler[index], &handlerAttribute, &invokeFileRetriever, (void*)taskParameter);
 }
 
 void* invokeFileRetriever(void* argument)
@@ -207,8 +207,12 @@ void* invokeFileRetriever(void* argument)
 
 	info("Good bye . \n");
 
+	pthread_mutex_lock(&threadMutex);
+
 	close(taskParam->socketid);
     FD_CLR(taskParam->socketid, &masterSet);
+
+    pthread_mutex_unlock(&threadMutex);
 
     return NULL;
 }
