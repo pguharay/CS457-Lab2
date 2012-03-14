@@ -4,7 +4,7 @@
 using namespace std;
 
 
-void ClientInterface :: retrieveFileFromNextSS(SteppingStoneAddress steppinStoneAddress, AwgetRequest* awgetRequest, int socketid)
+void ClientInterface :: retrieveFileFromNextSS(SteppingStoneAddress steppinStoneAddress, AwgetRequest awgetRequest, int socketid)
 {
 	string nextStoneAddress = steppinStoneAddress.hostAddress;
 
@@ -16,9 +16,9 @@ void ClientInterface :: retrieveFileFromNextSS(SteppingStoneAddress steppinStone
 	requestNextSSAndRelayResponse(awgetRequest, clientSocketID, socketid);
 }
 
-void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest, int clientSocketId, int serverSocketId)
+void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int clientSocketId, int serverSocketId)
 {
-	int bytes = send(clientSocketId, (void*)awgetRequest, sizeof(AwgetRequest), 0);
+	int bytes = send(clientSocketId, (void*)&awgetRequest, sizeof(AwgetRequest), 0);
 	info("Waiting for the file ... \n");
 
 	char response[MAX_FILE_SIZE];
@@ -47,7 +47,6 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 	}while(bytes > 0);
 
 	close(clientSocketId);
-	close(serverSocketId);
 
 	info("Successful. \n");
 }
