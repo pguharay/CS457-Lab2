@@ -3,17 +3,17 @@
 
 using namespace std;
 
-pthread_mutex_t threadMutexNew;
+pthread_mutex_t requestDelegationHandlerMutext;
 
 FileRetrieverService::FileRetrieverService()
 {
 	LOCAL_FILE_DIR = "/tmp/ss/";
-	pthread_mutex_init(&threadMutexNew, NULL);
+	pthread_mutex_init(&requestDelegationHandlerMutext, NULL);
 }
 
 FileRetrieverService::~FileRetrieverService()
 {
-	pthread_mutex_destroy(&threadMutexNew);
+	pthread_mutex_destroy(&requestDelegationHandlerMutext);
 }
 
 void FileRetrieverService::handleRequest(AwgetRequest awgetRequest, int socketid)
@@ -25,13 +25,12 @@ void FileRetrieverService::handleRequest(AwgetRequest awgetRequest, int socketid
 	debug("Next SS is = <%s,%u> \n", nextStone.hostAddress, ntohl(nextStone.port));
 	debug("Fetching %s \n", awgetRequest.url);
 
-	pthread_mutex_lock(&threadMutexNew);
+	pthread_mutex_lock(&requestDelegationHandlerMutext);
 
 	prepareNewSSList(awgetRequest, ntohs(awgetRequest.chainListSize), randomIndex);
 	awgetRequest.chainListSize = htons(ntohs(awgetRequest.chainListSize) - 1);
-	debug("********** modified chain list = %u \n", ntohs(awgetRequest.chainListSize));
 
-	pthread_mutex_unlock(&threadMutexNew);
+	pthread_mutex_unlock(&requestDelegationHandlerMutext);
 
 	ClientInterface clientInterface;
 	clientInterface.retrieveFileFromNextSS(nextStone, awgetRequest, socketid);

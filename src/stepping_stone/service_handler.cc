@@ -141,6 +141,13 @@ void handleRequestAsync(int socketid, AwgetRequest awgetRequest)
 	pthread_attr_t handlerAttribute;
 
 	TaskParameter* taskParameter = (TaskParameter*) malloc(sizeof(TaskParameter));
+
+	if(taskParameter == NULL)
+	{
+		perror("OutOfMemoryError - unable to allocate memory for new object");
+		exit(1);
+	}
+
 	taskParameter->socketid = socketid;
 	taskParameter->awgetRequest = awgetRequest;
 
@@ -191,6 +198,7 @@ void* handleRequest(void* argument)
 
 	FD_CLR(taskParameter->socketid, &masterSet);
 	close(taskParameter->socketid);
+	free(taskParameter);
 
 	pthread_mutex_unlock(&threadMutex);
 
