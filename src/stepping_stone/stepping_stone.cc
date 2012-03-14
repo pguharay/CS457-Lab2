@@ -5,7 +5,7 @@ SteppingStone :: SteppingStone(const char* port)
 {
 	if(port == NULL)
 	{
-		port = std::string(DEFAULT_PORT).c_str();
+		port = DEFAULT_PORT;
 	}
 
 	debug("Starting Stepping stone on port %s \n", port);
