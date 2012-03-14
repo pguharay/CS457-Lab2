@@ -66,7 +66,7 @@ void probeConnection(int maxFd, int listenerSocket)
       {
     	 if(i == listenerSocket)
     	 {
-    		 acceptConnection(listenerSocket);
+ 	        acceptConnectionAsync(listenerSocket);
     	 }
     	 else
     	 {
@@ -76,15 +76,46 @@ void probeConnection(int maxFd, int listenerSocket)
    }
 }
 
-void acceptConnection(int socketid)
+void acceptConnectionAsync(int listenerSocket)
+{
+    ConnectionRequest connectionRequest;
+    connectionRequest.listenerSocket = listenerSocket;
+
+    pthread_attr_t handlerAttribute;
+    void* taskStatus = NULL;
+
+    pthread_mutex_lock(&threadMutex);
+
+    int index = 0;
+    if (threadIndex < MAX_THREAD)
+	{
+		index = threadIndex++;
+	}
+	else
+	{
+		index = threadIndex = 0;
+	}
+
+    pthread_mutex_unlock(&threadMutex);
+
+    pthread_attr_init(&handlerAttribute);
+    pthread_attr_setdetachstate(&handlerAttribute, PTHREAD_CREATE_JOINABLE);
+    pthread_create(&handler[index], NULL, &acceptConnection, (void*) &connectionRequest);
+    pthread_join(handler[index], &taskStatus);
+}
+
+void* acceptConnection(void* argument)
 {
   sockaddr_in clientAddress;
   socklen_t   socketLength = sizeof(clientAddress);
-  int connectionSocket = accept(socketid, (struct sockaddr*)&clientAddress, &socketLength);
+  ConnectionRequest* connectionRequest = (ConnectionRequest*)argument;
+
+  int connectionSocket = accept(connectionRequest->listenerSocket, (struct sockaddr*)&clientAddress, &socketLength);
 
   if(connectionSocket < 0)
   {
     perror("Error occurred while accepting connection from client");
+    pthread_exit(NULL);
   }
   else
   {
@@ -94,6 +125,8 @@ void acceptConnection(int socketid)
       maxFd = connectionSocket;
     }
   }
+
+  return NULL;
 }
 
 void receiveData(int socketid)
@@ -114,16 +147,22 @@ void receiveData(int socketid)
 		info("] \n");
 	}
 
-	pthread_attr_t handlerAttribute;
-	void* taskStatus = NULL;
+    handleRequestAsync(socketid, request);
+}
 
-	TaskParameter taskParameter;
-	taskParameter.socketid = socketid;
-	taskParameter.awgetRequest = &request;
+void handleRequestAsync(int socketid, AwgetRequest request)
+{
+    pthread_attr_t handlerAttribute;
+    void* taskStatus = NULL;
 
-	pthread_mutex_lock(&threadMutex);
-	int index = 0;
-	if(threadIndex < MAX_THREAD)
+    TaskParameter taskParameter;
+    taskParameter.socketid = socketid;
+    taskParameter.awgetRequest = &request;
+
+    pthread_mutex_lock(&threadMutex);
+
+    int index = 0;
+    if(threadIndex < MAX_THREAD)
 	{
 		index = threadIndex++;
 	}
@@ -131,12 +170,13 @@ void receiveData(int socketid)
 	{
 		index = threadIndex = 0;
 	}
-	pthread_mutex_unlock(&threadMutex);
 
-	pthread_attr_init(&handlerAttribute);
-	pthread_attr_setdetachstate(&handlerAttribute,PTHREAD_CREATE_JOINABLE);
-	pthread_create(&handler[index], NULL, &invokeFileRetriever, (void*)&taskParameter);
-	pthread_join(handler[index], &taskStatus);
+    pthread_mutex_unlock(&threadMutex);
+
+    pthread_attr_init(&handlerAttribute);
+    pthread_attr_setdetachstate(&handlerAttribute, PTHREAD_CREATE_JOINABLE);
+    pthread_create(&handler[index], &handlerAttribute, &invokeFileRetriever, (void*)&taskParameter);
+    pthread_join(handler[index], &taskStatus);
 }
 
 void* invokeFileRetriever(void* argument)
@@ -144,17 +184,25 @@ void* invokeFileRetriever(void* argument)
 	TaskParameter* taskParam = (TaskParameter*)argument;
 	FileRetrieverService fileRetriever;
 
-	if(ntohs(taskParam->awgetRequest->chainListSize) > 0)
+	try
 	{
-		info("waiting ... \n");
+		if (ntohs(taskParam->awgetRequest->chainListSize) > 0)
+		{
+			info("waiting ... \n");
 
-		fileRetriever.handleRequest(taskParam->awgetRequest, taskParam->socketid);
+			fileRetriever.handleRequest(taskParam->awgetRequest,
+					taskParam->socketid);
+		}
+		else
+		{
+			debug("This is the last SS, wget %s \n", taskParam->awgetRequest->url);
+
+			fileRetriever.wget(taskParam->awgetRequest->url, taskParam->socketid);
+		}
 	}
-	else
+	catch (char* errorMessage)
 	{
-		debug("This is the last SS, wget %s \n", taskParam->awgetRequest->url);
-
-		fileRetriever.wget(taskParam->awgetRequest->url, taskParam->socketid);
+		error(errorMessage);
 	}
 
 	info("Good bye . \n");

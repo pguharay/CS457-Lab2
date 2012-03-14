@@ -9,9 +9,9 @@ AwgetRequest createRequest(int argc, char** argv)
 
 	debug("URL %s \n", *(argv + 2));
 
-	memcpy(awgetRequest.url,*(argv + 2), strlen(*(argv + 2)));
+	strcpy(awgetRequest.url,*(argv + 2));
 
-	awgetRequest.chainListSize = htons(2);
+	awgetRequest.chainListSize = htons(0);
 
 	SteppingStoneAddress firstStone, secondStone;
 

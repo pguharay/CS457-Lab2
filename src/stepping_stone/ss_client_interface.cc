@@ -25,8 +25,7 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 
 	if(bytes != sizeof(AwgetRequest))
 	{
-		perror("Failed to send request to server");
-		pthread_exit(NULL);
+		throw "Failed to send request to server \n";
 	}
 
 	info("Relaying file...  \n");
@@ -37,8 +36,7 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest* awgetRequest
 
 		if(bytes < 0)
 		{
-			perror("Unable to get response from server");
-			pthread_exit(NULL);
+			throw "Unable to get response from server \n";
 		}
 
 		if(bytes > 0)
@@ -68,24 +66,21 @@ int ClientInterface :: connectSteppingStone(const char* hostaddress, char* port)
 
 	if(status != SUCCESS)
 	{
-		perror("Unable to get address information for stepping stone");
-		pthread_exit(NULL);
+		throw "Unable to get address information for stepping stone \n";
 	}
 
 	int socketid = socket(AF_INET, SOCK_STREAM,0);
 
 	if(socketid < 0)
 	{
-		perror("unable to create socket");
-		pthread_exit(NULL);
+		throw "unable to create socket";
 	}
 
 	status = connect(socketid, hostAddressResultList->ai_addr, hostAddressResultList->ai_addrlen);
 
 	if(status == FAILURE)
 	{
-		perror("Unable to connect to stepping stone");
-		pthread_exit(NULL);
+		throw "Unable to connect to stepping stone \n";
 	}
 
 	return socketid;

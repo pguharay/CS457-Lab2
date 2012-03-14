@@ -23,32 +23,30 @@ int main(int argc, char** argv)
 
 void validateStartArguments(int argc, char** argv)
 {
-	if(argc != 3)
+	if(argc == 3)
 	{
-		throw "Invalid number of arguments";
-	}
+		char* option = *(argv + 1);
 
-	char* option = *(argv + 1);
+		if (strcmp(option, "-p") != 0)
+		{
+			throw "Invalid launch option. \n";
+		}
 
-	if(strcmp(option, "-p") != 0)
-	{
-		throw "Invalid launch option";
-	}
+		port = *(argv + 2);
 
-	port = *(argv + 2);
+		uint32_t ssPort = atoi(port);
 
-	uint32_t ssPort = atoi(port);
-
-	if(ssPort <1024 || ssPort > 65535)
-	{
-		throw "Port must be in range of 1024 to 65535";
+		if (ssPort < 1024 || ssPort > 65535)
+		{
+			throw "Port must be in range of 1024 to 65535. \n";
+		}
 	}
 }
 
 void displayErrorAndExit(const char *message)
 {
     error(message);
-    error("usage: ss -p port");
+    error("usage: ss <optional-p port> \n");
     exit(1);
 }
 

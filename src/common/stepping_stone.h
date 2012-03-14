@@ -5,6 +5,7 @@
 
 #define BACKLOG 10
 #define MAX_THREAD 100
+#define DEFAULT_PORT "9090"
 
 using namespace std;
 
@@ -20,6 +21,11 @@ typedef struct TaskParameter
 	AwgetRequest* awgetRequest;
 }TaskParam;
 
+typedef struct ConnectionRequest
+{
+	int listenerSocket;
+}connectionRequest;
+
 class SteppingStone
 {
 	private:
@@ -33,11 +39,11 @@ class SteppingStone
 		void initializeAddressInfo();
 		uint8_t getNextStone(int chainListLength);
 		char* getHostName();
-		int bindToAddress(addrinfo* iterator, char* port);
+		int bindToAddress(addrinfo* iterator, const char* port);
 		void setupStartParameter(addrinfo* addrinfo, int listenerSocket);
 
 	public:
-		SteppingStone(char* port);
+		SteppingStone(const char* port);
 		virtual ~SteppingStone();
 		virtual void start();
 };
@@ -68,13 +74,15 @@ class ClientInterface
 		void retrieveFileFromNextSS(SteppingStoneAddress steppingStoneAddress, AwgetRequest* aegetRequest, int socketid);
 };
 
-void* startService(void*);
-void selectConnection(int listenerSocket);
-void probeConnection(int maxFd, int listenerSocket);
-void acceptConnection(int socketid);
-void receiveData(int socketid);
-int receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length);
-void initFileDescriptorSet(int socketid);
-void* invokeFileRetriever(void* argument);
+void* 	startService(void*);
+void 	selectConnection(int listenerSocket);
+void 	probeConnection(int maxFd, int listenerSocket);
+void 	acceptConnectionAsync(int listenerSocket);
+void* 	acceptConnection(void* argument);
+void 	receiveData(int socketid);
+void 	handleRequestAsync(int socketid, AwgetRequest request);
+int 	receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length);
+void 	initFileDescriptorSet(int socketid);
+void* 	invokeFileRetriever(void* argument);
 
 #endif

@@ -1,0 +1,13 @@
+EXECUTABLE = awgettest
+DEPENDENCY = awgettest.o
+CC = g++
+CCFLAGS= -Wall -c -g
+OBJ_DIR=obj
+SRC_DIR=src
+EXE_DIR=build
+
+$(EXECUTABLE) : $(DEPENDENCY)
+	$(CC) $(DEPENDENCY) -o $(EXECUTABLE)
+
+awgettest.o : awgettest.cc ../$(SRC_DIR)/common/protocol.h
+	$(CC) $(CCFLAGS) awgettest.cc -o awgettest.o
