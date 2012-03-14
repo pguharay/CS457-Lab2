@@ -12,7 +12,7 @@ AwgetRequest createRequest(char* url)
 
 	strcpy(awgetRequest.url,url);
 
-	awgetRequest.chainListSize = htons(0);
+	awgetRequest.chainListSize = htons(2);
 
 	SteppingStoneAddress firstStone, secondStone;
 
