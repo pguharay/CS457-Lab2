@@ -7,6 +7,7 @@ int maxFd = 0;
 pthread_t handler[MAX_THREAD];
 pthread_mutex_t threadMutex;
 int threadIndex = 0;
+FileRetrieverService* fileRetriever;
 
 void* startService(void* argument)
 {
@@ -22,6 +23,8 @@ void* startService(void* argument)
 		pthread_exit(NULL);
 	}
 
+	fileRetriever = new FileRetrieverService();
+
 	pthread_mutex_init(&threadMutex, NULL);
 
 	selectConnection(startArg->listenerSocket);
@@ -29,6 +32,8 @@ void* startService(void* argument)
 	pthread_mutex_destroy(&threadMutex);
 
 	pthread_exit(NULL);
+
+	delete(fileRetriever);
 
 	return NULL;
 }
@@ -170,7 +175,6 @@ void handleRequestAsync(int socketid, AwgetRequest awgetRequest)
 void* handleRequest(void* argument)
 {
 	TaskParameter* taskParameter = (TaskParameter*)argument;
-	FileRetrieverService fileRetriever;
 
 	try
 	{
@@ -178,13 +182,13 @@ void* handleRequest(void* argument)
 		{
 			info("waiting ... \n");
 
-			fileRetriever.handleRequest(taskParameter->awgetRequest,taskParameter->socketid);
+			fileRetriever->handleRequest(taskParameter->awgetRequest,taskParameter->socketid);
 		}
 		else
 		{
 			debug("This is the last SS, wget %s \n", taskParameter->awgetRequest.url);
 
-			fileRetriever.wget(taskParameter->awgetRequest.url, taskParameter->socketid);
+			fileRetriever->wget(taskParameter->awgetRequest.url, taskParameter->socketid);
 		}
 	}
 	catch (char* errorMessage)
