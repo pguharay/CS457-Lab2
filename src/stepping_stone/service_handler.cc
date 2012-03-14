@@ -54,7 +54,7 @@ void selectConnection(int listenerSocket)
     if(status == FAILURE)
     {
       perror("Unable to select");
-      //pthread_exit(NULL);
+      pthread_exit(NULL);
     }
     else
     {
@@ -72,7 +72,7 @@ void probeConnection(int maxFd, int listenerSocket)
       {
     	 if(i == listenerSocket)
     	 {
- 	        acceptConnectionAsync(listenerSocket);
+ 	        acceptConnection(listenerSocket);
     	 }
     	 else
     	 {
@@ -82,39 +82,12 @@ void probeConnection(int maxFd, int listenerSocket)
    }
 }
 
-void acceptConnectionAsync(int listenerSocket)
-{
-    ConnectionRequest* connectionRequest = (ConnectionRequest*)malloc(sizeof(ConnectionRequest));
-    connectionRequest->listenerSocket = listenerSocket;
-
-    pthread_attr_t handlerAttribute;
-
-    pthread_mutex_lock(&threadMutex);
-
-    int index = 0;
-    if (threadIndex < MAX_THREAD)
-	{
-		index = threadIndex++;
-	}
-	else
-	{
-		index = threadIndex = 0;
-	}
-
-    pthread_mutex_unlock(&threadMutex);
-
-    pthread_attr_init(&handlerAttribute);
-    pthread_attr_setdetachstate(&handlerAttribute, PTHREAD_CREATE_JOINABLE);
-    pthread_create(&handler[index], NULL, &acceptConnection, (void*) connectionRequest);
-}
-
-void* acceptConnection(void* argument)
+void acceptConnection(int listenerSocket)
 {
   sockaddr_in clientAddress;
   socklen_t   socketLength = sizeof(clientAddress);
-  ConnectionRequest* connectionRequest = (ConnectionRequest*)argument;
 
-  int connectionSocket = accept(connectionRequest->listenerSocket, (struct sockaddr*)&clientAddress, &socketLength);
+  int connectionSocket = accept(listenerSocket, (struct sockaddr*)&clientAddress, &socketLength);
 
   if(connectionSocket < 0)
   {
@@ -123,14 +96,13 @@ void* acceptConnection(void* argument)
   }
   else
   {
-    FD_SET(connectionSocket, &masterSet);
+
+	FD_SET(connectionSocket, &masterSet);
     if(connectionSocket > maxFd)
     {
       maxFd = connectionSocket;
     }
   }
-
-  return NULL;
 }
 
 void receiveData(int socketid)
@@ -138,68 +110,81 @@ void receiveData(int socketid)
 	AwgetRequest request;
 	int status = receiveOnTCPSocket(socketid, &request, sizeof(request));
 
-	if(status == SUCCESS)
+	if (status == SUCCESS)
 	{
 		debug("Request = URL %s \n", request.url);
-		debug("ChainList size = %u \n", ntohs(request.chainListSize));
+		debug("ChainListl size = %u \n", ntohs(request.chainListSize));
 		info("SS list =[ \n");
-		for(int i = 0;i< ntohs(request.chainListSize); i++)
+		for (int i = 0; i < ntohs(request.chainListSize); i++)
 		{
 			SteppingStoneAddress ssAddress = request.chainList[i];
 			debug("<%s>,<%u> \n", ssAddress.hostAddress, ntohl(ssAddress.port));
 		}
+
 		info("] \n");
-	}
 
-    handleRequestAsync(socketid, request);
-}
-
-void handleRequestAsync(int socketid, AwgetRequest request)
-{
-    pthread_attr_t handlerAttribute;
-
-    TaskParameter* taskParameter = (TaskParameter*)malloc(sizeof(TaskParameter));
-    taskParameter->socketid = socketid;
-    taskParameter->awgetRequest = &request;
-
-    pthread_mutex_lock(&threadMutex);
-
-    int index = 0;
-    if(threadIndex < MAX_THREAD)
-	{
-		index = threadIndex++;
+		handleRequestAsync(socketid, request);
 	}
 	else
 	{
+		pthread_mutex_lock(&threadMutex);
+
+		FD_CLR(socketid, &masterSet);
+		close(socketid);
+
+		pthread_mutex_unlock(&threadMutex);
+	}
+}
+
+void handleRequestAsync(int socketid, AwgetRequest awgetRequest)
+{
+	pthread_attr_t handlerAttribute;
+
+	TaskParameter* taskParameter = (TaskParameter*) malloc(sizeof(TaskParameter));
+
+	if(taskParameter == NULL)
+	{
+		perror("OutOfMemoryError - unable to allocate memory for new object");
+		exit(1);
+	}
+
+	taskParameter->socketid = socketid;
+	taskParameter->awgetRequest = awgetRequest;
+
+	pthread_mutex_lock(&threadMutex);
+
+	int index = 0;
+	if (threadIndex < MAX_THREAD) {
+		index = threadIndex++;
+	} else {
 		index = threadIndex = 0;
 	}
 
-    pthread_mutex_unlock(&threadMutex);
+	pthread_mutex_unlock(&threadMutex);
 
-    pthread_attr_init(&handlerAttribute);
-    pthread_attr_setdetachstate(&handlerAttribute, PTHREAD_CREATE_JOINABLE);
-    pthread_create(&handler[index], &handlerAttribute, &invokeFileRetriever, (void*)taskParameter);
+	pthread_attr_init(&handlerAttribute);
+	pthread_attr_setdetachstate(&handlerAttribute, PTHREAD_CREATE_JOINABLE);
+	pthread_create(&handler[index], &handlerAttribute, &handleRequest, (void*) taskParameter);
 }
 
-void* invokeFileRetriever(void* argument)
+void* handleRequest(void* argument)
 {
-	TaskParameter* taskParam = (TaskParameter*)argument;
+	TaskParameter* taskParameter = (TaskParameter*)argument;
 	FileRetrieverService fileRetriever;
 
 	try
 	{
-		if (ntohs(taskParam->awgetRequest->chainListSize) > 0)
+		if (ntohs(taskParameter->awgetRequest.chainListSize) > 0)
 		{
 			info("waiting ... \n");
 
-			fileRetriever.handleRequest(taskParam->awgetRequest,
-					taskParam->socketid);
+			fileRetriever.handleRequest(taskParameter->awgetRequest,taskParameter->socketid);
 		}
 		else
 		{
-			debug("This is the last SS, wget %s \n", taskParam->awgetRequest->url);
+			debug("This is the last SS, wget %s \n", taskParameter->awgetRequest.url);
 
-			fileRetriever.wget(taskParam->awgetRequest->url, taskParam->socketid);
+			fileRetriever.wget(taskParameter->awgetRequest.url, taskParameter->socketid);
 		}
 	}
 	catch (char* errorMessage)
@@ -211,21 +196,30 @@ void* invokeFileRetriever(void* argument)
 
 	pthread_mutex_lock(&threadMutex);
 
-	close(taskParam->socketid);
-    FD_CLR(taskParam->socketid, &masterSet);
+	FD_CLR(taskParameter->socketid, &masterSet);
+	close(taskParameter->socketid);
+	free(taskParameter);
 
-    pthread_mutex_unlock(&threadMutex);
+	pthread_mutex_unlock(&threadMutex);
 
-    return NULL;
+	return NULL;
 }
 
 int receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length)
 {
 	info("Receiving request... \n");
 
-	recv(socketid, (void*)request, length, 0);
+	int byte = recv(socketid, (void*)request, length, 0);
 
-	return SUCCESS;
+	if(byte != sizeof(AwgetRequest))
+	{
+		error("Unable to receive the request \n.");
+		return FAILURE;
+	}
+	else
+	{
+		return SUCCESS;
+	}
 }
 
 void initFileDescriptorSet(int socketid)

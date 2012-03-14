@@ -18,7 +18,7 @@ typedef struct StartArgument
 typedef struct TaskParameter
 {
 	int socketid;
-	AwgetRequest* awgetRequest;
+	AwgetRequest awgetRequest;
 }TaskParam;
 
 typedef struct ConnectionRequest
@@ -60,27 +60,28 @@ class FileRetrieverService
 
 	public:
 		FileRetrieverService();
-		void handleRequest(AwgetRequest* request, int socketid);
+		~FileRetrieverService();
+		void handleRequest(AwgetRequest request, int socketid);
 		void wget(char* url, int socketid);
-		void prepareNewSSList(AwgetRequest* awgetRequest, int arraySize, int itemIndexToRemove);
+		void prepareNewSSList(AwgetRequest awgetRequest, int arraySize, int itemIndexToRemove);
 };
 
 class ClientInterface
 {
 	private:
 		int connectSteppingStone(const char* hostaddress, char* port);
-		void requestNextSSAndRelayResponse(AwgetRequest* awgetRequest, int clientSocketId, int serverSocketId);
+		void requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int clientSocketId, int serverSocketId);
 	public :
-		void retrieveFileFromNextSS(SteppingStoneAddress steppingStoneAddress, AwgetRequest* aegetRequest, int socketid);
+		void retrieveFileFromNextSS(SteppingStoneAddress steppingStoneAddress, AwgetRequest aegetRequest, int socketid);
 };
 
 void* 	startService(void*);
 void 	selectConnection(int listenerSocket);
 void 	probeConnection(int maxFd, int listenerSocket);
-void 	acceptConnectionAsync(int listenerSocket);
-void* 	acceptConnection(void* argument);
+void 	acceptConnection(int listenerSocket);
 void 	receiveData(int socketid);
-void 	handleRequestAsync(int socketid, AwgetRequest request);
+void    handleRequestAsync(int socketid, AwgetRequest awgetRequest);
+void* 	handleRequest(void* argument);
 int 	receiveOnTCPSocket(int socketid, AwgetRequest* request, size_t length);
 void 	initFileDescriptorSet(int socketid);
 void* 	invokeFileRetriever(void* argument);

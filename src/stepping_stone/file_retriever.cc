@@ -3,33 +3,45 @@
 
 using namespace std;
 
+pthread_mutex_t requestDelegationHandlerMutext;
+
 FileRetrieverService::FileRetrieverService()
 {
 	LOCAL_FILE_DIR = "/tmp/ss/";
+	pthread_mutex_init(&requestDelegationHandlerMutext, NULL);
 }
 
-void FileRetrieverService::handleRequest(AwgetRequest* awgetRequest, int socketid)
+FileRetrieverService::~FileRetrieverService()
 {
-	int randomIndex = (rand() % ntohs(awgetRequest->chainListSize));
+	pthread_mutex_destroy(&requestDelegationHandlerMutext);
+}
 
-	SteppingStoneAddress nextStone = awgetRequest->chainList[randomIndex];
+void FileRetrieverService::handleRequest(AwgetRequest awgetRequest, int socketid)
+{
+	int randomIndex = (rand() % ntohs(awgetRequest.chainListSize));
+
+	SteppingStoneAddress nextStone = awgetRequest.chainList[randomIndex];
 
 	debug("Next SS is = <%s,%u> \n", nextStone.hostAddress, ntohl(nextStone.port));
-	debug("Fetching %s \n", awgetRequest->url);
+	debug("Fetching %s \n", awgetRequest.url);
 
-	prepareNewSSList(awgetRequest, ntohs(awgetRequest->chainListSize), randomIndex);
+	pthread_mutex_lock(&requestDelegationHandlerMutext);
 
-	awgetRequest->chainListSize = htons(ntohs(awgetRequest->chainListSize) - 1);
+	prepareNewSSList(awgetRequest, ntohs(awgetRequest.chainListSize), randomIndex);
+	awgetRequest.chainListSize = htons(ntohs(awgetRequest.chainListSize) - 1);
+
+	pthread_mutex_unlock(&requestDelegationHandlerMutext);
 
 	ClientInterface clientInterface;
 	clientInterface.retrieveFileFromNextSS(nextStone, awgetRequest, socketid);
+
 }
 
-void FileRetrieverService :: prepareNewSSList(AwgetRequest* awgetRequest, int arraySize, int itemIndexToRemove)
+void FileRetrieverService :: prepareNewSSList(AwgetRequest awgetRequest, int arraySize, int itemIndexToRemove)
 {
 	for(int index = itemIndexToRemove;index < arraySize -1; index++)
 	{
-		awgetRequest->chainList[index] = awgetRequest->chainList[index + 1];
+		awgetRequest.chainList[index] = awgetRequest.chainList[index + 1];
 	}
 }
 
