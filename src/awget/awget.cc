@@ -17,6 +17,7 @@ using namespace std;
 
 #include "../common/protocol.h"
 #include "../common/stepping_stone.h"
+#include "../common/client.h"
 
 void showUsageandExit()
 {
@@ -27,9 +28,10 @@ void showUsageandExit()
 int main(int argc, char** argv)
 {
 	char* chainFileName = NULL;
-	char* fileURL = NULL;
 	char defaultChainFileName[] = "chaingang.txt";
 
+	char* fileURL = NULL;
+	char* saveFileName = NULL;
 
 	// == parse command line arguments ==
 	if (argc != 2 && argc != 4)
@@ -47,11 +49,15 @@ int main(int argc, char** argv)
 		else if (argv[i][0]== '-')
 			showUsageandExit();
 		else
+		{
 			fileURL = argv[i];
+			saveFileName = strrchr(fileURL,'/') + 1;
+		}
 	}
 
+
 	// this for debug
-	printf ("URL = %s, chainfile = %s\n", fileURL, chainFileName);
+//	printf ("URL = %s, chainfile = %s, save file name = %s\n", fileURL, chainFileName, saveFileName);
 
 
 	// The chainfile argument is optional, and specifies the file containing information about
@@ -99,7 +105,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 	*/
-
+	bool fileError = false;
 	try
 	{
 		for (int i=0; i<numEntries; i++)
@@ -109,13 +115,15 @@ int main(int argc, char** argv)
 				if (address.empty())
 				{
 					printf("Error reading chainfile: %s  (Invalid address)\n", chainFileName);
-					return -1;
+					fileError = true;
+					break;
 				}
 			}
 			else
 			{
 				printf("Error reading chainfile: %s \n", chainFileName);
-				return -1;
+				fileError = true;
+				break;
 			}
 
 			if (getline(chainFile, data))
@@ -125,13 +133,15 @@ int main(int argc, char** argv)
 				if (port < 1024 || port > 65535)
 				{
 					printf("Error reading chainfile: %s  (Invalid port)\n", chainFileName);
-					return -1;
+					fileError = true;
+					break;
 				}
 			}
 			else
 			{
 				printf("Error reading chainfile: %s \n", chainFileName);
-				return -1;
+				fileError = true;
+				break;
 			}
 
 			// copy data to struct
@@ -140,6 +150,10 @@ int main(int argc, char** argv)
 			entry.port = port;
 			awgetRequest.chainList[i] = entry;
 		}
+
+		chainFile.close();
+		if (fileError) return -1;
+
 	}
 	catch (...)
 	{
@@ -147,18 +161,18 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	// for testing - verify file read
-	printf("%s has %i entries\n", chainFileName, awgetRequest.chainListSize);
+	printf("\nRetrieving file from URL: %s\n", fileURL);
+	printf("Chainfile %s has %i entries\n", chainFileName, awgetRequest.chainListSize);
 	for (int i=0; i< awgetRequest.chainListSize; i++)
-		printf("%s, %i\n", awgetRequest.chainList[i].hostAddress, awgetRequest.chainList[i].port);
+		printf("%i) %s, %i\n", i+1, awgetRequest.chainList[i].hostAddress, awgetRequest.chainList[i].port);
 
 
 
 	// === set up FileRetrieverService and send request ===
 
-//	FileRetrieverService service;
-//	int socketID = 6000;
-//	service.handleRequest(&awgetRequest, socketID);
+
+//	AwgetClient client(awgetRequest);
+//	char* fileData = client.awget();
 
 
 	// === set up listener and wait for the data to arrive
@@ -166,6 +180,19 @@ int main(int argc, char** argv)
 
 	// save it into a local file - Note that the name of the file should be the one given in the URL (but not the entire URL).
 
+    ofstream dataFile(saveFileName);
+    if (dataFile.is_open())
+    {
+    	dataFile << "File successfully opened";
+    	dataFile.close();
+    }
+    else
+    {
+    	printf("Error saving file ./%s\n", saveFileName);
+    }
+
+	printf("\nFetched file successfully\n");
+	printf("File: ./%s\n", saveFileName);
 
 	return 1;
 }
