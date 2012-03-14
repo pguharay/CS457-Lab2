@@ -183,6 +183,7 @@ int main(int argc, char** argv)
     ofstream dataFile(saveFileName);
     if (dataFile.is_open())
     {
+    	//dataFile << fileData;
     	dataFile << "File successfully opened";
     	dataFile.close();
     }
