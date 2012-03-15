@@ -52,7 +52,7 @@ void selectConnection(int listenerSocket)
 
     pthread_mutex_lock(&threadMutex);
 
-    int status= select(maxFd + 1, &readSet, NULL, NULL, NULL);
+    int status= select(maxFd + 1, &readSet, NULL, NULL, &timeout);
 
     pthread_mutex_unlock(&threadMutex);
 
@@ -133,8 +133,8 @@ void receiveData(int socketid)
 	{
 		pthread_mutex_lock(&threadMutex);
 
-		FD_CLR(socketid, &masterSet);
 		close(socketid);
+		FD_CLR(socketid, &masterSet);
 
 		pthread_mutex_unlock(&threadMutex);
 	}
@@ -199,8 +199,8 @@ void* handleRequest(void* argument)
 
 	pthread_mutex_lock(&threadMutex);
 
-	FD_CLR(taskParameter->socketid, &masterSet);
 	close(taskParameter->socketid);
+	FD_CLR(taskParameter->socketid, &masterSet);
 	free(taskParameter);
 
 	pthread_mutex_unlock(&threadMutex);
