@@ -59,7 +59,6 @@ void selectConnection(int listenerSocket)
     if(status == FAILURE)
     {
       perror("Unable to select");
-      //pthread_exit(NULL);
     }
     else
     {
