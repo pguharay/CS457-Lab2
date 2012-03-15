@@ -16,7 +16,7 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <string.h>
-#include "protocol.h"
+#include "awget.h"
 #include "util.h"
 
 #ifndef CLIENT_H_

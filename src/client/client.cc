@@ -27,8 +27,6 @@ const char* AwgetClient::awget(){
 	//AwgetRequest request = createRequest(args.documentUrl, ssAll);
 	SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, ntohs(request.chainListSize));
 	//initializeConnection(ss);
-	debug("next ss is <%s, %u> \n", ss.hostAddress, ntohs(ss.port));
-
 	return sendRequest(ss, request);
 }
 
@@ -83,8 +81,6 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 	//resolve the hostAddress from the steppingstone structure...
 	int status;
 
-	debug("Target Stepping stone <%s, %u> \n", ss.hostAddress, ntohs(ss.port));
-
 	struct sockaddr_in sin;
 	struct hostent *hp;
 
@@ -93,8 +89,6 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 		debug("Unknown host: %s\n.", ss.hostAddress);
 		exit(1);
 	}
-
-	debug("hostname %s \n",hp->h_name);
 
 	memset(&sin, 0x0000, sizeof(sin));
 	memcpy(&sin.sin_addr, hp->h_addr_list[0], sizeof(hp->h_length));
