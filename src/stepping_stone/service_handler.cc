@@ -56,7 +56,7 @@ void selectConnection(int listenerSocket)
 
     pthread_mutex_unlock(&threadMutex);
 
-    if(status == SUCCESS)
+    if(status != FAILURE)
     {
     	probeConnection(maxFd, listenerSocket);
     }
