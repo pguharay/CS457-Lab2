@@ -5,25 +5,25 @@
  *      Author: jon
  */
 #include "../common/client.h"
+#include <fcntl.h>
 
-
-clientArgument args;
 struct addrinfo  serverAddressQuery;
 struct addrinfo* serverAddressResultList;
 fd_set read_fds;
 struct timeval tv;
 int socketId;
 sockaddr* serverAddress;
+AwgetRequest request;
 
-AwgetClient::AwgetClient(clientArgument clientArg) {
-	args = clientArg;
+AwgetClient::AwgetClient(AwgetRequest awgetRequest) {
+	request = awgetRequest;
 }
 
 
 const char* AwgetClient::awget(){
 	//get a random steppingstone from the list in the request.
-	SteppingStoneAddress* ssAll = getSteppingStonesFromFile(args.hostFile);
-	AwgetRequest request = createRequest(args.documentUrl, ssAll);
+	//SteppingStoneAddress* ssAll = getSteppingStonesFromFile(args.hostFile);
+	//AwgetRequest request = createRequest(args.documentUrl, ssAll);
 	SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, request.chainListSize);
 	//initializeConnection(ss);
 	return sendRequest(ss, request);
@@ -31,14 +31,13 @@ const char* AwgetClient::awget(){
 
 
 const char* AwgetClient::sendRequest(SteppingStoneAddress ss, AwgetRequest request){
-	error("got here!\n");
 	initializeConnection(ss);
 	char inputBuffer[1024];
 	bool dataComplete = false;
 	std::string fullOutput;
 
 	int bytes;
-	socklen_t addrlen = sizeof(struct sockaddr);
+	//socklen_t addrlen = sizeof(struct sockaddr);
 	bytes = send(socketId, (void *)&request, sizeof(struct AwgetRequest), 0);
 	if(bytes < 0){
 		perror("Unable to send data");
@@ -50,6 +49,7 @@ const char* AwgetClient::sendRequest(SteppingStoneAddress ss, AwgetRequest reque
 		perror("select");
 		exit(1);
 	}
+
 
 	 if (FD_ISSET(socketId, &read_fds)){
 		 while(!dataComplete){
@@ -80,11 +80,6 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 	//resolve the hostAddress from the steppingstone structure...
 	int status;
 
-	if(status != SUCCESS){
-		error("Unable to get server host information \n");
-		exit(1);
-	}
-
 	struct sockaddr_in sin;
 	struct hostent *hp;
 
@@ -102,12 +97,17 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 	socketId = socket(PF_INET, SOCK_STREAM, 0);
 
 	 if(socketId < 0){
-		error("Unable to create socket \n");
+		perror("Unable to create socket \n");
 		exit(1);
 	 }
 
+	 //int flags = fcntl(socketId, F_GETFL, 0);
+	 //fcntl(socketId, F_SETFL, flags | O_NONBLOCK);
+
+
 	//wait for response, will need a timeout here...
 	 status = connect(socketId, (struct sockaddr *)&sin, sizeof(sin));
+
 	 if(status == FAILURE){
 		perror("unable to connect to server");
 		exit(1);
@@ -127,18 +127,19 @@ SteppingStoneAddress AwgetClient::getRandomSteppingStoneAddressFromList(Stepping
 	return steppingStones[randomIndex];
 }
 
-
+/*
 AwgetRequest AwgetClient::createRequest(char* documentUrl, SteppingStoneAddress steppingStones[]){
 	//TODO
 	AwgetRequest req;
 	return req;
-}
+}*/
 
-SteppingStoneAddress* AwgetClient::getSteppingStonesFromFile(char* fi){
+/*
+SteppingStoneAddress AwgetClient::getSteppingStonesFromFile(char* fi){
 	//TODO
 	SteppingStoneAddress steppingStones[255];
 	return steppingStones;
-}
+}*/
 
 AwgetClient::~AwgetClient() {
 

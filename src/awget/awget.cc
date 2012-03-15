@@ -14,9 +14,6 @@
 #include <fstream>
 using namespace std;
 
-
-#include "../common/protocol.h"
-#include "../common/stepping_stone.h"
 #include "../common/client.h"
 
 void showUsageandExit()
@@ -167,12 +164,8 @@ int main(int argc, char** argv)
 		printf("%i) %s, %i\n", i+1, awgetRequest.chainList[i].hostAddress, awgetRequest.chainList[i].port);
 
 
-
-	// === set up FileRetrieverService and send request ===
-
-
-//	AwgetClient client(awgetRequest);
-//	char* fileData = client.awget();
+	AwgetClient client(awgetRequest);
+	const char* fileData = client.awget();
 
 
 	// === set up listener and wait for the data to arrive
