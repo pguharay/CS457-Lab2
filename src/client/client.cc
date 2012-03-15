@@ -5,6 +5,7 @@
  *      Author: jon
  */
 #include "../common/client.h"
+#include "../common/util.h"
 #include <fcntl.h>
 
 struct addrinfo  serverAddressQuery;
@@ -24,8 +25,10 @@ const char* AwgetClient::awget(){
 	//get a random steppingstone from the list in the request.
 	//SteppingStoneAddress* ssAll = getSteppingStonesFromFile(args.hostFile);
 	//AwgetRequest request = createRequest(args.documentUrl, ssAll);
-	SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, request.chainListSize);
+	SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, ntohs(request.chainListSize));
 	//initializeConnection(ss);
+	debug("next ss is <%s, %u> \n", ss.hostAddress, ntohs(ss.port));
+
 	return sendRequest(ss, request);
 }
 
@@ -80,6 +83,8 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 	//resolve the hostAddress from the steppingstone structure...
 	int status;
 
+	debug("Target Stepping stone <%s, %u> \n", ss.hostAddress, ntohs(ss.port));
+
 	struct sockaddr_in sin;
 	struct hostent *hp;
 
@@ -89,12 +94,15 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 		exit(1);
 	}
 
-	bzero((char *)&sin, sizeof(sin));
-	sin.sin_family = AF_INET;
-	bcopy(hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
+	debug("hostname %s \n",hp->h_name);
 
-	sin.sin_port = htons(ss.port);
-	socketId = socket(PF_INET, SOCK_STREAM, 0);
+	memset(&sin, 0x0000, sizeof(sin));
+	memcpy(&sin.sin_addr, hp->h_addr_list[0], sizeof(hp->h_length));
+
+	sin.sin_port = ss.port;
+	sin.sin_family = AF_INET;
+
+	socketId = socket(AF_INET, SOCK_STREAM, 0);
 
 	 if(socketId < 0){
 		perror("Unable to create socket \n");
@@ -103,7 +111,6 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 
 	 //int flags = fcntl(socketId, F_GETFL, 0);
 	 //fcntl(socketId, F_SETFL, flags | O_NONBLOCK);
-
 
 	//wait for response, will need a timeout here...
 	 status = connect(socketId, (struct sockaddr *)&sin, sizeof(sin));

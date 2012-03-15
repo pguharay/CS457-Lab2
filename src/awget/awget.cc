@@ -82,7 +82,8 @@ int main(int argc, char** argv)
 	AwgetRequest awgetRequest;
 //	awgetRequest.url = NULL;
 
-
+	strcpy(awgetRequest.url,fileURL);
+	printf("URL in awget request %s \n.", awgetRequest.url);
 	// read number of entries
 	getline(chainFile, data);
 	int numEntries = atoi(data.c_str());
@@ -93,7 +94,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	awgetRequest.chainListSize = numEntries;
+	awgetRequest.chainListSize = htons(numEntries);
 
 	/*
  	if (numEntries > MAX_HOSTS)
@@ -144,7 +145,7 @@ int main(int argc, char** argv)
 			// copy data to struct
 			ssAddress entry;
 			strcpy(entry.hostAddress,address.c_str());
-			entry.port = port;
+			entry.port = htons(port);
 			awgetRequest.chainList[i] = entry;
 		}
 
@@ -159,9 +160,9 @@ int main(int argc, char** argv)
 	}
 
 	printf("\nRetrieving file from URL: %s\n", fileURL);
-	printf("Chainfile %s has %i entries\n", chainFileName, awgetRequest.chainListSize);
-	for (int i=0; i< awgetRequest.chainListSize; i++)
-		printf("%i) %s, %i\n", i+1, awgetRequest.chainList[i].hostAddress, awgetRequest.chainList[i].port);
+	printf("Chainfile %s has %i entries\n", chainFileName, ntohs(awgetRequest.chainListSize));
+	for (int i=0; i< ntohs(awgetRequest.chainListSize); i++)
+		printf("%i) %s, %i\n", i+1, awgetRequest.chainList[i].hostAddress, ntohs(awgetRequest.chainList[i].port));
 
 
 	AwgetClient client(awgetRequest);
@@ -173,11 +174,13 @@ int main(int argc, char** argv)
 
 	// save it into a local file - Note that the name of the file should be the one given in the URL (but not the entire URL).
 
-    ofstream dataFile(saveFileName);
+    ofstream dataFile;
+    dataFile.open(saveFileName, ios::out | ios::binary);
+
     if (dataFile.is_open())
     {
     	//dataFile << fileData;
-    	dataFile << "File successfully opened";
+    	dataFile.write(fileData, MAX_FILE_SIZE);
     	dataFile.close();
     }
     else
