@@ -56,11 +56,7 @@ void selectConnection(int listenerSocket)
 
     pthread_mutex_unlock(&threadMutex);
 
-    if(status == FAILURE)
-    {
-      perror("Unable to select");
-    }
-    else
+    if(status == SUCCESS)
     {
     	probeConnection(maxFd, listenerSocket);
     }
