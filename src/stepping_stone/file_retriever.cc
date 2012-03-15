@@ -27,7 +27,7 @@ void FileRetrieverService::handleRequest(AwgetRequest awgetRequest, int socketid
 
 	pthread_mutex_lock(&requestDelegationHandlerMutext);
 
-	prepareNewSSList(awgetRequest, ntohs(awgetRequest.chainListSize), randomIndex);
+	prepareNewSSList(&awgetRequest, ntohs(awgetRequest.chainListSize), randomIndex);
 	awgetRequest.chainListSize = htons(ntohs(awgetRequest.chainListSize) - 1);
 
 	pthread_mutex_unlock(&requestDelegationHandlerMutext);
@@ -37,11 +37,11 @@ void FileRetrieverService::handleRequest(AwgetRequest awgetRequest, int socketid
 
 }
 
-void FileRetrieverService :: prepareNewSSList(AwgetRequest awgetRequest, int arraySize, int itemIndexToRemove)
+void FileRetrieverService :: prepareNewSSList(AwgetRequest* awgetRequest, int arraySize, int itemIndexToRemove)
 {
 	for(int index = itemIndexToRemove;index < arraySize -1; index++)
 	{
-		awgetRequest.chainList[index] = awgetRequest.chainList[index + 1];
+		awgetRequest->chainList[index] = awgetRequest->chainList[index + 1];
 	}
 }
 
