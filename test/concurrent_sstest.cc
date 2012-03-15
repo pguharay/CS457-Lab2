@@ -20,7 +20,7 @@ AwgetRequest createRequest(char* url)
 	firstStone.port = htonl(8080);
 
 	strcpy(secondStone.hostAddress, "tomato.cs.colostate.edu");
-	secondStone.port = htonl(8081);
+	secondStone.port = htonl(8080);
 
 	awgetRequest.chainList[0] = firstStone;
 	awgetRequest.chainList[1] = secondStone;
