@@ -52,14 +52,14 @@ void selectConnection(int listenerSocket)
 
     pthread_mutex_lock(&threadMutex);
 
-    int status= select(maxFd + 1, &readSet, NULL, NULL, &timeout);
+    int status= select(maxFd + 1, &readSet, NULL, NULL, NULL);
 
     pthread_mutex_unlock(&threadMutex);
 
     if(status == FAILURE)
     {
       perror("Unable to select");
-      pthread_exit(NULL);
+      //pthread_exit(NULL);
     }
     else
     {
