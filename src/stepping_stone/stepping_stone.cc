@@ -67,7 +67,7 @@ int SteppingStone :: bindToAddress(addrinfo* iterator, const char* port)
 {
   int listenerSocket;
   int reuse = 1;
-  uint32_t ssPort = atoi(port);
+  uint16_t ssPort = atoi(port);
 
   while(iterator != NULL)
   {

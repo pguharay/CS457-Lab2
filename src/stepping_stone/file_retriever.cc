@@ -22,7 +22,7 @@ void FileRetrieverService::handleRequest(AwgetRequest awgetRequest, int socketid
 
 	SteppingStoneAddress nextStone = awgetRequest.chainList[randomIndex];
 
-	debug("Next SS is = <%s,%u> \n", nextStone.hostAddress, ntohl(nextStone.port));
+	debug("Next SS is = <%s,%u> \n", nextStone.hostAddress, ntohs(nextStone.port));
 	debug("Fetching %s \n", awgetRequest.url);
 
 	pthread_mutex_lock(&requestDelegationHandlerMutext);

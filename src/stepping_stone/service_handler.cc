@@ -118,7 +118,7 @@ void receiveData(int socketid)
 		for (int i = 0; i < ntohs(request.chainListSize); i++)
 		{
 			SteppingStoneAddress ssAddress = request.chainList[i];
-			debug("<%s>,<%u> \n", ssAddress.hostAddress, ntohl(ssAddress.port));
+			debug("<%s>,<%u> \n", ssAddress.hostAddress, ntohs(ssAddress.port));
 		}
 
 		info("] \n");
