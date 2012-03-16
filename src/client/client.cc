@@ -18,41 +18,52 @@ char* saveFileName=NULL;
 
 AwgetClient::AwgetClient(AwgetRequest awgetRequest) {
 	request = awgetRequest;
+
 	saveFileName = strrchr(request.url,'/') + 1;
+
+	srand ( time(NULL) );
 }
 
 
 const char* AwgetClient::awget(){
 	//get a random steppingstone from the list in the request.
 	//SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, ntohs(request.chainListSize));
-	SteppingStoneAddress ss = dequeRandomSteppingStoneAddressFromList(request.chainList, ntohs(request.chainListSize));
-	const char* fileContents = sendRequest(ss, request);
-	const char* fileLocation = writeToFile(fileContents, strlen(fileContents));
+	SteppingStoneAddress ss = dequeRandomSteppingStoneAddressFromList(&request, ntohs(request.chainListSize));
+
+	const char* fileLocation = requestAndSaveFile(ss, request);
+
 	return fileLocation;
 }
 
-SteppingStoneAddress AwgetClient::dequeRandomSteppingStoneAddressFromList(SteppingStoneAddress* steppingStones, uint8_t size){
+SteppingStoneAddress AwgetClient::dequeRandomSteppingStoneAddressFromList(AwgetRequest* awgetRequest, uint16_t size){
 	//get random address...
-	srand ( time(NULL) );
 	int randomIndex = rand() % size;
-	SteppingStoneAddress returnAddress =  steppingStones[randomIndex];
-	std::vector<SteppingStoneAddress> addressVector;
+	SteppingStoneAddress returnAddress =  awgetRequest->chainList[randomIndex];
 
-	//now remove address from array...
-	addressVector.insert(addressVector.begin(), steppingStones, steppingStones+size);
-	addressVector.erase(addressVector.begin() + randomIndex);
-	size--;
-	steppingStones = &addressVector[0];
+	debug("Next ss is <%s, %u> \n", returnAddress.hostAddress, returnAddress.port);
+
+	for(int i=randomIndex; i < (size - 1); i++)
+	{
+		awgetRequest->chainList[i] = awgetRequest->chainList[i+1];
+	}
+
+	awgetRequest->chainListSize = htons(size - 1);
+
 	return returnAddress;
 }
 
 
-const char* AwgetClient::sendRequest(SteppingStoneAddress ss, AwgetRequest request){
+const char* AwgetClient::requestAndSaveFile(SteppingStoneAddress ss, AwgetRequest request){
+
 	initializeConnection(ss);
 	char inputBuffer[1024];
 	bool dataComplete = false;
-	std::vector<unsigned char> fullOutput;
+	//std::vector<unsigned char> fullOutput;
 	int bytes;
+
+	ofstream dataFile;
+	dataFile.open(saveFileName, ios::out | ios::binary | ios::ate);
+
 
 	bytes = send(socketId, (void *)&request, sizeof(struct AwgetRequest), 0);
 	if(bytes < 0){
@@ -60,65 +71,50 @@ const char* AwgetClient::sendRequest(SteppingStoneAddress ss, AwgetRequest reque
 		exit(1);
 	}
 
+	info("waiting for file... \n");
+
 	int status = select(socketId+1, &read_fds, NULL, NULL, &tv);
-	if (status == FAILURE) {
+
+	if (status == FAILURE)
+	{
 		perror("select");
 		exit(1);
 	}
 
 
-	 if (FD_ISSET(socketId, &read_fds)){
-		 while(!dataComplete){
+	 if (FD_ISSET(socketId, &read_fds))
+	 {
+		 while(!dataComplete)
+		 {
 			bytes = recv(socketId, (void *)&inputBuffer, sizeof(inputBuffer), 0);
-			if(bytes == FAILURE){
+			if(bytes == FAILURE)
+			{
 				perror("receive");
 				exit(1);
 			}
 
-			if(bytes>0){
-
-				fullOutput.insert(fullOutput.end(), inputBuffer,inputBuffer + bytes);
-			}else{
+			if(bytes>0)
+			{
+				dataFile.write(inputBuffer, bytes);
+			}
+			else
+			{
 				dataComplete = true;
 			}
 		 }
 	}
-	else{
+	else
+	{
         error("Timeout occurred.\n");
         exit(1);
     }
 
+	dataFile.close();
 	close(socketId);
-	return (const char*)&fullOutput[0];
 
-}
+	debug("Received file %s \n", saveFileName);
 
-
-/*
- * Write the contents of the request to a file on the local disk.
- * return location of file.
- */
-const char* AwgetClient::writeToFile(const char* fileContents, int size){
-	ofstream dataFile;
-	dataFile.open(saveFileName, ios::out | ios::trunc | ios::binary);
-
-	try{
-		if (dataFile.is_open())
-		{
-			dataFile.write(fileContents, size);
-			dataFile.close();
-			return saveFileName;
-		}
-		else
-		{
-			printf("Error saving file ./%s\n", saveFileName);
-			exit(1);
-		}
-	}catch (exception& e){
-		perror("Error saving file contents.");
-		exit(1);
-	}
-
+	return (const char*)saveFileName;;
 }
 
 void AwgetClient::initializeConnection(SteppingStoneAddress ss){

@@ -39,9 +39,8 @@ class AwgetClient {
 		AwgetClient(AwgetRequest request);
 		virtual ~AwgetClient();
 		const char* awget(); //makes the call to get document and returns the path to the local file.
-		const char* sendRequest(SteppingStoneAddress ss, AwgetRequest request);
-		const char* writeToFile(const char* fileContents, int size);
-		SteppingStoneAddress dequeRandomSteppingStoneAddressFromList(SteppingStoneAddress* steppingStones, uint8_t size);
+		const char* requestAndSaveFile(SteppingStoneAddress ss, AwgetRequest request);
+		SteppingStoneAddress dequeRandomSteppingStoneAddressFromList(AwgetRequest* awgetRequest, uint16_t size);
 
 	private:
 		void initializeConnection(SteppingStoneAddress ss);

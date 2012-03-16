@@ -18,6 +18,6 @@ int main(int argc, char** argv)
 	AwgetRequest request;
 	request.chainListSize=htonl(0);
 	strcpy(request.url, "http://someurl/sometxt.txt");
-	client->sendRequest(ssa, request);
+	client->requestAndSaveFile(ssa, request);
 
 }
