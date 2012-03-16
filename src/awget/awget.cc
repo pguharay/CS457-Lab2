@@ -28,7 +28,6 @@ int main(int argc, char** argv)
 	char defaultChainFileName[] = "chaingang.txt";
 
 	char* fileURL = NULL;
-	char* saveFileName = NULL;
 
 	// == parse command line arguments ==
 	if (argc != 2 && argc != 4)
@@ -48,7 +47,6 @@ int main(int argc, char** argv)
 		else
 		{
 			fileURL = argv[i];
-			saveFileName = strrchr(fileURL,'/') + 1;
 		}
 	}
 
@@ -166,30 +164,11 @@ int main(int argc, char** argv)
 
 
 	AwgetClient client(awgetRequest);
-	const char* fileData = client.awget();
+	const char* fileLocation = client.awget();
 
-
-	// === set up listener and wait for the data to arrive
-
-
-	// save it into a local file - Note that the name of the file should be the one given in the URL (but not the entire URL).
-
-    ofstream dataFile;
-    dataFile.open(saveFileName, ios::out | ios::binary);
-
-    if (dataFile.is_open())
-    {
-    	//dataFile << fileData;
-    	dataFile.write(fileData, MAX_FILE_SIZE);
-    	dataFile.close();
-    }
-    else
-    {
-    	printf("Error saving file ./%s\n", saveFileName);
-    }
 
 	printf("\nFetched file successfully\n");
-	printf("File: ./%s\n", saveFileName);
+	printf("File: ./%s\n", fileLocation);
 
 	return 1;
 }

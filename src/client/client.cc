@@ -6,7 +6,6 @@
  */
 #include "../common/client.h"
 #include "../common/util.h"
-#include <fcntl.h>
 
 struct addrinfo  serverAddressQuery;
 struct addrinfo* serverAddressResultList;
@@ -15,19 +14,36 @@ struct timeval tv;
 int socketId;
 sockaddr* serverAddress;
 AwgetRequest request;
+char* saveFileName=NULL;
 
 AwgetClient::AwgetClient(AwgetRequest awgetRequest) {
 	request = awgetRequest;
+	saveFileName = strrchr(request.url,'/') + 1;
 }
 
 
 const char* AwgetClient::awget(){
 	//get a random steppingstone from the list in the request.
-	//SteppingStoneAddress* ssAll = getSteppingStonesFromFile(args.hostFile);
-	//AwgetRequest request = createRequest(args.documentUrl, ssAll);
-	SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, ntohs(request.chainListSize));
-	//initializeConnection(ss);
-	return sendRequest(ss, request);
+	//SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, ntohs(request.chainListSize));
+	SteppingStoneAddress ss = dequeRandomSteppingStoneAddressFromList(request.chainList, ntohs(request.chainListSize));
+	const char* fileContents = sendRequest(ss, request);
+	const char* fileLocation = writeToFile(fileContents, strlen(fileContents));
+	return fileLocation;
+}
+
+SteppingStoneAddress AwgetClient::dequeRandomSteppingStoneAddressFromList(SteppingStoneAddress* steppingStones, uint8_t size){
+	//get random address...
+	srand ( time(NULL) );
+	int randomIndex = rand() % size;
+	SteppingStoneAddress returnAddress =  steppingStones[randomIndex];
+	std::vector<SteppingStoneAddress> addressVector;
+
+	//now remove address from array...
+	addressVector.insert(addressVector.begin(), steppingStones, steppingStones+size);
+	addressVector.erase(addressVector.begin() + randomIndex);
+	size--;
+	steppingStones = &addressVector[0];
+	return returnAddress;
 }
 
 
@@ -35,10 +51,9 @@ const char* AwgetClient::sendRequest(SteppingStoneAddress ss, AwgetRequest reque
 	initializeConnection(ss);
 	char inputBuffer[1024];
 	bool dataComplete = false;
-	std::string fullOutput;
-
+	std::vector<unsigned char> fullOutput;
 	int bytes;
-	//socklen_t addrlen = sizeof(struct sockaddr);
+
 	bytes = send(socketId, (void *)&request, sizeof(struct AwgetRequest), 0);
 	if(bytes < 0){
 		perror("Unable to send data");
@@ -61,7 +76,8 @@ const char* AwgetClient::sendRequest(SteppingStoneAddress ss, AwgetRequest reque
 			}
 
 			if(bytes>0){
-				fullOutput.append(inputBuffer, bytes);
+
+				fullOutput.insert(fullOutput.end(), inputBuffer,inputBuffer + bytes);
 			}else{
 				dataComplete = true;
 			}
@@ -73,7 +89,36 @@ const char* AwgetClient::sendRequest(SteppingStoneAddress ss, AwgetRequest reque
     }
 
 	close(socketId);
-	return fullOutput.data();
+	return (const char*)&fullOutput[0];
+
+}
+
+
+/*
+ * Write the contents of the request to a file on the local disk.
+ * return location of file.
+ */
+const char* AwgetClient::writeToFile(const char* fileContents, int size){
+	ofstream dataFile;
+	dataFile.open(saveFileName, ios::out | ios::trunc | ios::binary);
+
+	try{
+		if (dataFile.is_open())
+		{
+			dataFile.write(fileContents, size);
+			dataFile.close();
+			return saveFileName;
+		}
+		else
+		{
+			printf("Error saving file ./%s\n", saveFileName);
+			exit(1);
+		}
+	}catch (exception& e){
+		perror("Error saving file contents.");
+		exit(1);
+	}
+
 }
 
 void AwgetClient::initializeConnection(SteppingStoneAddress ss){
@@ -120,6 +165,9 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 }
 
 
+
+
+
 SteppingStoneAddress AwgetClient::getRandomSteppingStoneAddressFromList(SteppingStoneAddress steppingStones[], uint8_t size){
 	/* initialize random seed: */
 	//TODO: get it better..
@@ -128,19 +176,6 @@ SteppingStoneAddress AwgetClient::getRandomSteppingStoneAddressFromList(Stepping
 	return steppingStones[randomIndex];
 }
 
-/*
-AwgetRequest AwgetClient::createRequest(char* documentUrl, SteppingStoneAddress steppingStones[]){
-	//TODO
-	AwgetRequest req;
-	return req;
-}*/
-
-/*
-SteppingStoneAddress AwgetClient::getSteppingStonesFromFile(char* fi){
-	//TODO
-	SteppingStoneAddress steppingStones[255];
-	return steppingStones;
-}*/
 
 AwgetClient::~AwgetClient() {
 
