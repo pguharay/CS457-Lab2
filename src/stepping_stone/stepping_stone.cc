@@ -8,11 +8,11 @@ SteppingStone :: SteppingStone(const char* port)
 		port = DEFAULT_PORT;
 	}
 
-	debug("Starting Stepping stone on port %s \n", port);
-
 	initializeAddressInfo();
 
 	int status = getaddrinfo(getHostName(), port, &addressInfo, &addrInfoResultList);
+
+	debug("Starting Stepping stone on host <%s>, port <%s> \n", getHostName(), port);
 
 	if(status != 0)
 	{

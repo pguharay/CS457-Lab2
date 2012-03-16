@@ -41,6 +41,10 @@ void validateStartArguments(int argc, char** argv)
 			throw "Port must be in range of 1024 to 65535. \n";
 		}
 	}
+	else if(argc != 1)
+	{
+		throw "Invalid option \n";
+	}
 }
 
 void displayErrorAndExit(const char *message)
