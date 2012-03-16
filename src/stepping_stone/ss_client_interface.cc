@@ -9,7 +9,7 @@ void ClientInterface :: retrieveFileFromNextSS(SteppingStoneAddress steppinStone
 	string nextStoneAddress = steppinStoneAddress.hostAddress;
 
 	char port[10];
-	sprintf(port, "%d", ntohl(steppinStoneAddress.port));
+	sprintf(port, "%u", ntohs(steppinStoneAddress.port));
 
 	int clientSocketID = connectSteppingStone(nextStoneAddress.c_str(), port);
 

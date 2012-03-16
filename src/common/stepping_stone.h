@@ -1,4 +1,4 @@
-#include "protocol.h"
+#include "awget.h"
 
 #ifndef STEPPING_STONE_H_
 #define STEPPING_STONE_H_
