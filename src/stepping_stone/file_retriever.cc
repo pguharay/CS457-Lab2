@@ -91,7 +91,7 @@ string FileRetrieverService::getFileLocation(string filename)
 
 string FileRetrieverService::createWgetCommand(string fileLocation, string urlAsString)
 {
-    string systemCommand = "wget --no-check-certificate --output-document ";
+    string systemCommand = "wget -q --no-check-certificate --output-document ";
     systemCommand.append(fileLocation);
     systemCommand.append(" ");
     systemCommand.append(urlAsString);
