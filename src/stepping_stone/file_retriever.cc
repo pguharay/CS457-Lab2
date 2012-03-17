@@ -7,7 +7,7 @@ pthread_mutex_t requestDelegationHandlerMutext;
 
 FileRetrieverService::FileRetrieverService()
 {
-	LOCAL_FILE_DIR = "/tmp/ss/";
+	LOCAL_FILE_DIR = "./"; // "/tmp/ss/"; - can't write to /tmp on cs machines
 	pthread_mutex_init(&requestDelegationHandlerMutext, NULL);
 }
 
@@ -91,7 +91,7 @@ string FileRetrieverService::getFileLocation(string filename)
 
 string FileRetrieverService::createWgetCommand(string fileLocation, string urlAsString)
 {
-    string systemCommand = "wget -q --output-document ";
+    string systemCommand = "wget --no-check-certificate --output-document ";
     systemCommand.append(fileLocation);
     systemCommand.append(" ");
     systemCommand.append(urlAsString);

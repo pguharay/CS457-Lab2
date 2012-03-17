@@ -40,7 +40,7 @@ SteppingStoneAddress AwgetClient::dequeRandomSteppingStoneAddressFromList(AwgetR
 	int randomIndex = rand() % size;
 	SteppingStoneAddress returnAddress =  awgetRequest->chainList[randomIndex];
 
-	debug("Next ss is <%s, %u> \n", returnAddress.hostAddress, returnAddress.port);
+	debug("Next ss is <%s, %u> \n", returnAddress.hostAddress, ntohs(returnAddress.port));
 
 	for(int i=randomIndex; i < (size - 1); i++)
 	{
