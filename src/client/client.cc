@@ -87,9 +87,9 @@ const char* AwgetClient::requestAndSaveFile(SteppingStoneAddress ss, AwgetReques
 		 while(!dataComplete)
 		 {
 			bytes = recv(socketId, (void *)&inputBuffer, sizeof(inputBuffer), 0);
-			if(bytes == FAILURE)
+			if(bytes <= 0)
 			{
-				perror("receive");
+				error("Unable to receive file successfully \n");
 				exit(1);
 			}
 
@@ -157,7 +157,7 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 
 	 FD_ZERO(&read_fds);
 	 FD_SET(socketId,&read_fds);
-	 tv.tv_sec = 3;
+	 tv.tv_sec = 30;
 }
 
 

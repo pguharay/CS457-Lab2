@@ -7,7 +7,7 @@ pthread_mutex_t requestDelegationHandlerMutext;
 
 FileRetrieverService::FileRetrieverService()
 {
-	LOCAL_FILE_DIR = "./"; // "/tmp/ss/"; - can't write to /tmp on cs machines
+	LOCAL_FILE_DIR = "./";
 	pthread_mutex_init(&requestDelegationHandlerMutext, NULL);
 }
 
@@ -58,7 +58,10 @@ void FileRetrieverService::wget(char* url, int socketid)
 
 	if(status != 0)
 	{
-		throw "Unable to retrieve file using wget \n.";
+		error("Unable to retrieve file using wget. \n");
+		removeTemporaryFile(fileLocation);
+
+		return ;
 	}
 
 	readFileAndStream(fileLocation, socketid);

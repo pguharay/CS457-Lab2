@@ -6,14 +6,22 @@ using namespace std;
 
 void ClientInterface :: retrieveFileFromNextSS(SteppingStoneAddress steppinStoneAddress, AwgetRequest awgetRequest, int socketid)
 {
-	string nextStoneAddress = steppinStoneAddress.hostAddress;
+	try
+	{
+		string nextStoneAddress = steppinStoneAddress.hostAddress;
 
-	char port[10];
-	sprintf(port, "%u", ntohs(steppinStoneAddress.port));
+		char port[10];
+		sprintf(port, "%u", ntohs(steppinStoneAddress.port));
 
-	int clientSocketID = connectSteppingStone(nextStoneAddress.c_str(), port);
+		int clientSocketID = connectSteppingStone(nextStoneAddress.c_str(), port);
 
-	requestNextSSAndRelayResponse(awgetRequest, clientSocketID, socketid);
+		requestNextSSAndRelayResponse(awgetRequest, clientSocketID, socketid);
+	}
+	catch(char* message)
+	{
+		debug("Unable to retrieve file - %s", message);
+		close(socketid);
+	}
 }
 
 void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest awgetRequest, int clientSocketId, int serverSocketId)
@@ -34,7 +42,7 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest awgetRequest,
 	{
 		bytes = recv(clientSocketId, (void*)response, MAX_FILE_SIZE, 0);
 
-		if(bytes < 0)
+		if(bytes <= 0)
 		{
 			throw "Unable to get response from server \n";
 		}
