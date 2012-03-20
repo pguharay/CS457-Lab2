@@ -6,7 +6,6 @@
  */
 #include "../common/client.h"
 #include "../common/util.h"
-#include <fcntl.h>
 
 struct addrinfo  serverAddressQuery;
 struct addrinfo* serverAddressResultList;
@@ -15,65 +14,107 @@ struct timeval tv;
 int socketId;
 sockaddr* serverAddress;
 AwgetRequest request;
+char* saveFileName=NULL;
 
 AwgetClient::AwgetClient(AwgetRequest awgetRequest) {
 	request = awgetRequest;
+
+	saveFileName = strrchr(request.url,'/') + 1;
+
+	srand ( time(NULL) );
 }
 
 
 const char* AwgetClient::awget(){
 	//get a random steppingstone from the list in the request.
-	//SteppingStoneAddress* ssAll = getSteppingStonesFromFile(args.hostFile);
-	//AwgetRequest request = createRequest(args.documentUrl, ssAll);
-	SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, ntohs(request.chainListSize));
-	//initializeConnection(ss);
-	return sendRequest(ss, request);
+	//SteppingStoneAddress ss = getRandomSteppingStoneAddressFromList(request.chainList, ntohs(request.chainListSize));
+	SteppingStoneAddress ss = dequeRandomSteppingStoneAddressFromList(&request, ntohs(request.chainListSize));
+
+	const char* fileLocation = requestAndSaveFile(ss, request);
+
+	return fileLocation;
+}
+
+SteppingStoneAddress AwgetClient::dequeRandomSteppingStoneAddressFromList(AwgetRequest* awgetRequest, uint16_t size){
+	//get random address...
+	int randomIndex = rand() % size;
+	SteppingStoneAddress returnAddress =  awgetRequest->chainList[randomIndex];
+
+	debug("Next ss is <%s, %u> \n", returnAddress.hostAddress, ntohs(returnAddress.port));
+
+	for(int i=randomIndex; i < (size - 1); i++)
+	{
+		awgetRequest->chainList[i] = awgetRequest->chainList[i+1];
+	}
+
+	awgetRequest->chainListSize = htons(size - 1);
+
+	return returnAddress;
 }
 
 
-const char* AwgetClient::sendRequest(SteppingStoneAddress ss, AwgetRequest request){
+const char* AwgetClient::requestAndSaveFile(SteppingStoneAddress ss, AwgetRequest request){
+
 	initializeConnection(ss);
 	char inputBuffer[1024];
 	bool dataComplete = false;
-	std::string fullOutput;
-
+	//std::vector<unsigned char> fullOutput;
 	int bytes;
-	//socklen_t addrlen = sizeof(struct sockaddr);
+
+	ofstream dataFile;
+	dataFile.open(saveFileName, ios::out | ios::binary | ios::ate);
+
+
 	bytes = send(socketId, (void *)&request, sizeof(struct AwgetRequest), 0);
 	if(bytes < 0){
 		perror("Unable to send data");
 		exit(1);
 	}
 
+	info("waiting for file... \n");
+
 	int status = select(socketId+1, &read_fds, NULL, NULL, &tv);
-	if (status == FAILURE) {
+
+	if (status == FAILURE)
+	{
 		perror("select");
 		exit(1);
 	}
 
 
-	 if (FD_ISSET(socketId, &read_fds)){
-		 while(!dataComplete){
+	 if (FD_ISSET(socketId, &read_fds))
+	 {
+		 while(!dataComplete)
+		 {
 			bytes = recv(socketId, (void *)&inputBuffer, sizeof(inputBuffer), 0);
-			if(bytes == FAILURE){
-				perror("receive");
+			if(bytes <= 0)
+			{
+				error("Unable to receive file successfully \n");
 				exit(1);
 			}
 
-			if(bytes>0){
-				fullOutput.append(inputBuffer, bytes);
-			}else{
+			if(bytes>0)
+			{
+				dataFile.write(inputBuffer, bytes);
+			}
+			else
+			{
 				dataComplete = true;
 			}
 		 }
 	}
-	else{
+	else
+	{
         error("Timeout occurred.\n");
         exit(1);
     }
 
+	dataFile.close();
 	close(socketId);
-	return fullOutput.data();
+
+	debug("Received file %s \n", saveFileName);
+
+	return (const char*)saveFileName;;
 }
 
 void AwgetClient::initializeConnection(SteppingStoneAddress ss){
@@ -116,8 +157,11 @@ void AwgetClient::initializeConnection(SteppingStoneAddress ss){
 
 	 FD_ZERO(&read_fds);
 	 FD_SET(socketId,&read_fds);
-	 tv.tv_sec = 3;
+	 tv.tv_sec = 30;
 }
+
+
+
 
 
 SteppingStoneAddress AwgetClient::getRandomSteppingStoneAddressFromList(SteppingStoneAddress steppingStones[], uint8_t size){
@@ -128,19 +172,6 @@ SteppingStoneAddress AwgetClient::getRandomSteppingStoneAddressFromList(Stepping
 	return steppingStones[randomIndex];
 }
 
-/*
-AwgetRequest AwgetClient::createRequest(char* documentUrl, SteppingStoneAddress steppingStones[]){
-	//TODO
-	AwgetRequest req;
-	return req;
-}*/
-
-/*
-SteppingStoneAddress AwgetClient::getSteppingStonesFromFile(char* fi){
-	//TODO
-	SteppingStoneAddress steppingStones[255];
-	return steppingStones;
-}*/
 
 AwgetClient::~AwgetClient() {
 

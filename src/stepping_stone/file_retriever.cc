@@ -7,7 +7,7 @@ pthread_mutex_t requestDelegationHandlerMutext;
 
 FileRetrieverService::FileRetrieverService()
 {
-	LOCAL_FILE_DIR = "/tmp/ss/";
+	LOCAL_FILE_DIR = "./";
 	pthread_mutex_init(&requestDelegationHandlerMutext, NULL);
 }
 
@@ -58,7 +58,10 @@ void FileRetrieverService::wget(char* url, int socketid)
 
 	if(status != 0)
 	{
-		throw "Unable to retrieve file using wget \n.";
+		error("Unable to retrieve file using wget. \n");
+		removeTemporaryFile(fileLocation);
+
+		return ;
 	}
 
 	readFileAndStream(fileLocation, socketid);
@@ -91,7 +94,7 @@ string FileRetrieverService::getFileLocation(string filename)
 
 string FileRetrieverService::createWgetCommand(string fileLocation, string urlAsString)
 {
-    string systemCommand = "wget -q --output-document ";
+    string systemCommand = "wget -q --no-check-certificate --output-document ";
     systemCommand.append(fileLocation);
     systemCommand.append(" ");
     systemCommand.append(urlAsString);

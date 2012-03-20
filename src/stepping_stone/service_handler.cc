@@ -43,7 +43,7 @@ void selectConnection(int listenerSocket)
   initFileDescriptorSet(listenerSocket);
 
   struct timeval timeout;
-  timeout.tv_sec = 2;
+  timeout.tv_sec = 30;
   timeout.tv_usec = 0;
 
   while(true)
@@ -189,6 +189,10 @@ void* handleRequest(void* argument)
 	catch (char* errorMessage)
 	{
 		error(errorMessage);
+	}
+	catch(...)
+	{
+		error("Unable to get file successfully \n");
 	}
 
 	info("Good bye . \n");

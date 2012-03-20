@@ -1,0 +1,5 @@
+4
+bean.cs.colostate.edu, 9090
+tomato.cs.colostate.edu, 9090
+pea.cs.colostate.edu, 9090
+eggplant.cs.colostate.edu, 9090
