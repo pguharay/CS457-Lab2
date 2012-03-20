@@ -193,6 +193,7 @@ void* handleRequest(void* argument)
 	catch(...)
 	{
 		error("Unable to get file successfully \n");
+		throw;
 	}
 
 	info("Good bye . \n");
