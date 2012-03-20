@@ -81,6 +81,7 @@ const char* AwgetClient::requestAndSaveFile(SteppingStoneAddress ss, AwgetReques
 		exit(1);
 	}
 
+	int totalBytes = 0;
 
 	 if (FD_ISSET(socketId, &read_fds))
 	 {
@@ -102,6 +103,8 @@ const char* AwgetClient::requestAndSaveFile(SteppingStoneAddress ss, AwgetReques
 				dataFile.write(inputBuffer, bytes);
 				dataComplete = true;
 			}
+
+			totalBytes += bytes;
 		 }
 	}
 	else
@@ -113,7 +116,14 @@ const char* AwgetClient::requestAndSaveFile(SteppingStoneAddress ss, AwgetReques
 	dataFile.close();
 	close(socketId);
 
-	debug("Received file %s \n", saveFileName);
+	if(totalBytes == 0)
+	{
+		string command = "rm -f ";
+		command.append(saveFileName);
+		system(command.c_str());
+
+		return NULL;
+	}
 
 	return (const char*)saveFileName;;
 }

@@ -166,9 +166,15 @@ int main(int argc, char** argv)
 	AwgetClient client(awgetRequest);
 	const char* fileLocation = client.awget();
 
-
-	printf("\nFetched file successfully\n");
-	printf("File: ./%s\n", fileLocation);
+	if(fileLocation != NULL)
+	{
+		printf("\nFetched file successfully\n");
+		printf("File: ./%s\n", fileLocation);
+	}
+	else
+	{
+		printf("Unable to retrieve file successfully \n");
+	}
 
 	return 1;
 }
