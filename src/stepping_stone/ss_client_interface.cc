@@ -42,7 +42,7 @@ void ClientInterface :: requestNextSSAndRelayResponse(AwgetRequest awgetRequest,
 	{
 		bytes = recv(clientSocketId, (void*)response, MAX_FILE_SIZE, 0);
 
-		if(bytes <= 0)
+		if(bytes < 0)
 		{
 			throw "Unable to get response from server \n";
 		}
