@@ -99,6 +99,7 @@ const char* AwgetClient::requestAndSaveFile(SteppingStoneAddress ss, AwgetReques
 			}
 			else
 			{
+				dataFile.write(inputBuffer, bytes);
 				dataComplete = true;
 			}
 		 }
