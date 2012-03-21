@@ -78,10 +78,9 @@ int main(int argc, char** argv)
 	int port;
 
 	AwgetRequest awgetRequest;
-//	awgetRequest.url = NULL;
 
 	strcpy(awgetRequest.url,fileURL);
-	printf("URL in awget request %s \n.", awgetRequest.url);
+	printf("Request: %s \n", awgetRequest.url);
 	// read number of entries
 	getline(chainFile, data);
 	int numEntries = atoi(data.c_str());
@@ -157,10 +156,10 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	printf("\nRetrieving file from URL: %s\n", fileURL);
-	printf("Chainfile %s has %i entries\n", chainFileName, ntohs(awgetRequest.chainListSize));
+	//printf("Chainfile %s has %i entries\n", chainFileName, ntohs(awgetRequest.chainListSize));
+	printf("chainlist is\n");
 	for (int i=0; i< ntohs(awgetRequest.chainListSize); i++)
-		printf("%i) %s, %i\n", i+1, awgetRequest.chainList[i].hostAddress, ntohs(awgetRequest.chainList[i].port));
+		printf("%s, %i\n", awgetRequest.chainList[i].hostAddress, ntohs(awgetRequest.chainList[i].port));
 
 
 	AwgetClient client(awgetRequest);
@@ -168,13 +167,15 @@ int main(int argc, char** argv)
 
 	if(fileLocation != NULL)
 	{
-		printf("\nFetched file successfully\n");
-		printf("File: ./%s\n", fileLocation);
+		//printf("\nFetched file successfully\n");
+		printf("Received file: ./%s\n", fileLocation);
 	}
 	else
 	{
 		printf("Unable to retrieve file successfully \n");
 	}
+
+	printf("Goodbye!");
 
 	return 1;
 }
