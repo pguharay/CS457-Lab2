@@ -1,6 +1,58 @@
- This is our Lab project repository. Please make sure that you can add your name to this file and upload.
-Developer:
++----------------------------------------------------------------------------+
+|					CS 457/ Lab 2 workout									 |
++----------------------------------------------------------------------------+ 
++----------------------------------------------------------------------------+
+|								Team:										 |
++----------------------------------------------------------------------------+
 1. Pratik Guha Ray
 2. Jonathan Eckstein
 3. Mark Jablow
 4. Rebecca Mui
+-----------------------------------------------------------------------------
+
+* How to build ?
+  Run make all to make build awget and stepping stone. 
+  Run make awget to build awget module alone.
+  Run make ss to build stepping stone module alone.
+  Run make clean to clean up the build file. 
+
+* How to run the project?
+  Run awget by ./awget <url> -c <chain file path> where 
+  chain file path is optional paramemter i.e. default chainfile will be used if
+  not specified/
+  
+  Run ss by ./ss -p <port> where port is optional argument. If not specified 
+  default port 9090 will be used.
+  
+
+* Project strcuture
+  The below tree diagram shows the project file details.
+
+├── chaingang.txt
+├── makeawget
+├── makefile
+├── makess
+├── ReadMe
+├── src
+│   ├── awget
+│   │   └── awget.cc
+│   ├── client
+│   │   ├── client.cc
+│   │   └── client_runner.cc
+│   ├── common
+│   │   ├── awget.h
+│   │   ├── client.h
+│   │   ├── stepping_stone.h
+│   │   └── util.h
+│   └── stepping_stone
+│       ├── file_retriever.cc
+│       ├── runss.cc
+│       ├── service_handler.cc
+│       ├── ss_client_interface.cc
+│       └── stepping_stone.cc
+
+
+
+
+
+
