@@ -52,7 +52,23 @@
 │       └── stepping_stone.cc
 
 
-
+* Stepping stone call flow:
+	
+	- runss.cc reads command line argument and starts the stepping stone with 
+	  requisite parameters.
+	- stepping_stone.cc is the startup module and binds the server to appropriate
+	  address and port based on address information lookup.    
+	- service_handler.cc is the service interface for stepping stone and encapsulates 
+	  the business logic to receive and handle client request under concurrent thread.
+	- file_retriever.cc provides wget abstraction and downloads file from web location.
+	  It also relays the file to downstream client.
+	- ss_client_interface.cc is the client interface for intermediate stepping stone.
+	  It forwards the request to upstream stepping stone and relays the content downstream.
+	  
+	-awget.cc reads the command line interface to accept the web URL and chainfile path.
+	 It reads the configured chain file and prepares the request for stepping stone.
+	-client.cc accepts the request prepared by awget.cc and determines the next random
+	 stone to send the request. Once the file is relayed, client saves the file to local disk. 	     
 
 
 
