@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 
 	ss->start();
 
-	return 1;
+	return 0;
 }
 
 void validateStartArguments(int argc, char** argv)

@@ -30,7 +30,7 @@ typedef struct __attribute__((packed)) AwgetRequest
 {
 	uint16_t	chainListSize;
 	char 		url[255];
-	ssAddress   chainList[5];
+	ssAddress   chainList[20];
 }awgetRequest;
 
 #endif
