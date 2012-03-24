@@ -175,8 +175,6 @@ void* handleRequest(void* argument)
 	{
 		if (ntohs(taskParameter->awgetRequest.chainListSize) > 0)
 		{
-			info("waiting ... \n");
-
 			fileRetriever->handleRequest(taskParameter->awgetRequest,taskParameter->socketid);
 		}
 		else

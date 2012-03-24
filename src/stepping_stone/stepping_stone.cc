@@ -14,7 +14,7 @@ SteppingStone :: SteppingStone(const char* port)
 
 	debug("Starting Stepping stone on host <%s>, port <%s> \n", getHostName(), port);
 
-	if(status != 0)
+	if(status != SUCCESS)
 	{
 	    perror("unable to retrieve server address information");
 	    exit(1);
