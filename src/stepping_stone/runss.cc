@@ -18,6 +18,8 @@ int main(int argc, char** argv)
 
 	ss->start();
 
+	delete(ss);
+
 	return 0;
 }
 
@@ -34,6 +36,11 @@ void validateStartArguments(int argc, char** argv)
 
 		port = *(argv + 2);
 
+		if(!isNumeric(port))
+		{
+			throw "Port number must be numeric between 1024 and 65536 \n";
+		}
+
 		uint32_t ssPort = atoi(port);
 
 		if (ssPort < 1024 || ssPort > 65535)
@@ -45,6 +52,22 @@ void validateStartArguments(int argc, char** argv)
 	{
 		throw "Invalid option \n";
 	}
+}
+
+bool isNumeric(const char* value)
+{
+  int i=0;
+
+  while(*(value + i) != '\0')
+  {
+    if(!std::isdigit(*(value + i)))
+    {
+      return false;
+    }
+    i++;
+  }
+
+  return true;
 }
 
 void displayErrorAndExit(const char *message)
