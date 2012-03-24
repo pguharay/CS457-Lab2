@@ -12,5 +12,6 @@
 void validateStartArguments(int argc, char** argv);
 void displayErrorAndExit(const char *message);
 bool isNumeric(const char* value);
+bool startsWith(char* value, char character);
 
 #endif

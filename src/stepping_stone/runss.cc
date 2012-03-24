@@ -38,7 +38,12 @@ void validateStartArguments(int argc, char** argv)
 
 		if(!isNumeric(port))
 		{
-			throw "Port number must be numeric between 1024 and 65536 \n";
+			throw "Port number must be integer between 1024 and 65536 \n";
+		}
+
+		if(startsWith(port, '0') && strlen(port) > 1)
+		{
+			throw "Port number must be integer between 1024 and 65536 \n";
 		}
 
 		uint32_t ssPort = atoi(port);
@@ -68,6 +73,11 @@ bool isNumeric(const char* value)
   }
 
   return true;
+}
+
+bool startsWith(char* value, char character)
+{
+	return *(value) == character;
 }
 
 void displayErrorAndExit(const char *message)
