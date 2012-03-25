@@ -167,8 +167,8 @@ int main(int argc, char** argv)
 
 	if(fileLocation != NULL)
 	{
-		//printf("\nFetched file successfully\n");
-		printf("Received file: ./%s\n", fileLocation);
+		printf("\nFetched file successfully\n");
+		printf("Result file: ./%s\n", fileLocation);
 	}
 	else
 	{
