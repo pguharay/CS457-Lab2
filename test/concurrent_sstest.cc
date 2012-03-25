@@ -1,4 +1,4 @@
-#include "../src/common/protocol.h"
+#include "../src/common/awget.h"
 #include "../src/common/util.h"
 #include "sstest.h"
 
@@ -16,11 +16,11 @@ AwgetRequest createRequest(char* url)
 
 	SteppingStoneAddress firstStone, secondStone;
 
-	strcpy(firstStone.hostAddress, "spinach.cs.colostate.edu");
-	firstStone.port = htons(8080);
+	strcpy(firstStone.hostAddress, "pea.cs.colostate.edu");
+	firstStone.port = htons(9090);
 
 	strcpy(secondStone.hostAddress, "tomato.cs.colostate.edu");
-	secondStone.port = htons(8080);
+	secondStone.port = htons(9090);
 
 	awgetRequest.chainList[0] = firstStone;
 	awgetRequest.chainList[1] = secondStone;
