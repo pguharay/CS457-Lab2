@@ -2,7 +2,7 @@
 |					CS 457/ Lab 2 workout									 |
 +----------------------------------------------------------------------------+ 
 +----------------------------------------------------------------------------+
-|								Team:										 |
+|								Team: ThreeCP								 |
 +----------------------------------------------------------------------------+
 1. Pratik Guha Ray
 2. Jonathan Eckstein
@@ -19,7 +19,7 @@
 * How to run the project?
   Run awget by ./awget <url> -c <chain file path> where 
   chain file path is optional paramemter i.e. default chainfile will be used if
-  not specified/
+  not specified.
   
   Run ss by ./ss -p <port> where port is optional argument. If not specified 
   default port 9090 will be used.
@@ -37,8 +37,7 @@
 │   ├── awget
 │   │   └── awget.cc
 │   ├── client
-│   │   ├── client.cc
-│   │   └── client_runner.cc
+│   │   └── client.cc   
 │   ├── common
 │   │   ├── awget.h
 │   │   ├── client.h
@@ -68,7 +67,12 @@
 	-awget.cc reads the command line interface to accept the web URL and chainfile path.
 	 It reads the configured chain file and prepares the request for stepping stone.
 	-client.cc accepts the request prepared by awget.cc and determines the next random
-	 stone to send the request. Once the file is relayed, client saves the file to local disk. 	     
+	 stone to send the request. Once the file is relayed, client saves the file to local disk. 
+	 
+	- awget.h has the protocol specific request data structure
+	- util.h has utility method signature
+	- stepping_stone.h has stepping stone specific API declaration
+	- client.h has clinet specific API declaration 	     
 
 
 
